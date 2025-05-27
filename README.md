@@ -38,17 +38,10 @@ O **StopotS** é um jogo em tempo real onde jogadores competem para preencher ca
 
 ## 🛠️ Tecnologias
 - **Frontend**: 
-  ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
-  ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
-- **Backend**: 
-  ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
-  ![Socket.IO](https://img.shields.io/badge/Socket.IO-010101?logo=socketdotio)
+- **Backend**:
 - **Banco de Dados**: 
-  ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=black)
 - **Ferramentas**: 
-  ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint)
   ![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white)
-
 ---
 
 ## 📥 Instalação
