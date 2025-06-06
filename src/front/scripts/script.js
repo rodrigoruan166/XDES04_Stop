@@ -59,6 +59,8 @@ async function entrar(e) {
 				const info = JSON.parse(data.message);
 				localStorage.setItem("username", info.username);
 				localStorage.setItem("email", info.email);
+				localStorage.setItem("avatar", info.avatar);
+				localStorage.setItem("privacidade", info.private == 1 ? 'publico' : 'privado');
 				alert("Logado com sucesso.");
 				window.location.href = "./home.html";
 			} else {

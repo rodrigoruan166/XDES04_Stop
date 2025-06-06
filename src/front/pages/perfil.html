@@ -378,7 +378,7 @@
                     novoPassword: novaSenha == "" ? senhaAtual : novaSenha
                 }
 
-                await fetch("http://localhost:3000/editar", {
+                await fetch("https://xdes-04-stop.vercel.app/editar", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
