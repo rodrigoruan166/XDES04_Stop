@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { con } = require("../database.js");
-const HTTP_CODES = require("../../helpers/codes.js");
+const HTTP_CODES = require("../helpers/codes.js");
 
 const app = Router();
 

@@ -15,13 +15,6 @@ app.use(user);
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
-// endpoint de teste
-app.get("/teste", (_req, res) => {
-	res.statusCode = HTTP_CODES.OK;
-	res.setHeader("Content-Type", "text/plain");
-	res.end("Hello, World!");
-});
-
 app.listen(PORT, () => {
 	console.log(`Servidor rodando na porta: ${PORT}!`);
 });
