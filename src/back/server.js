@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { con } = require('./database.js')
 
 const app = express();
 const PORT = 3000;
@@ -10,6 +11,10 @@ app.use(cors({
 app.use(express.static('.'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.get('/teste', (req, res) => {
+    console.log("HELLO");
+});
 
 app.post('/cadastrar', (req, res) => {
     const { email, username, password } = req.body;
@@ -25,5 +30,5 @@ app.post('/cadastrar', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    console.log(`Servidor rodando!`);
 });
