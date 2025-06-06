@@ -52,6 +52,7 @@ async function entrar(e) {
   })
   .then(res => res.json())
   .then(data => {
+    console.log(data);
     if (data.success) {
       alert("Logado com sucesso.");
       window.location.href = './home.html';

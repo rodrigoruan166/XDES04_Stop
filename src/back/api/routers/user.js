@@ -105,7 +105,7 @@ app.post("/delete", (req, res) => {
 			} else {
 				const deleteQuery =
 					"UPDATE users SET deleted = 1 WHERE email = ?";
-				con.query(query, values, (err, results) => {
+				con.query(deleteQuery, values, (err, results) => {
 					if (!err) {
 						res.send("Usuário deletado com sucesso.");
 					}
