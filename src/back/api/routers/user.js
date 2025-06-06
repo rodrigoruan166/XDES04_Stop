@@ -1,4 +1,4 @@
-const { Router } = require('express');
+const { Router } = require("express");
 const { con } = require("../database.js");
 const HTTP_CODES = require("../helpers/codes.js");
 
@@ -57,30 +57,31 @@ app.post("/logar", (req, res) => {
 		return res.json({ success: false, message: "E-mail inválido." });
 	}
 
-	const query = "SELECT passwd, deleted FROM users WHERE email = ?";
+	const query =
+		"SELECT username, email, passwd, deleted FROM users WHERE email = ?";
 	const values = [email];
 
 	con.query(query, values, (err, results) => {
-        const answer = {};
+		const answer = {};
 		if (!results || results.length == 0) {
-            answer.success = false;
-            answer.message = "Usuário não encontrado";
-            answer.code = HTTP_CODES.BAD_REQUEST;
+			answer.success = false;
+			answer.message = "Usuário não encontrado";
+			answer.code = HTTP_CODES.BAD_REQUEST;
 			res.json(answer);
 		} else {
 			const user = results[0];
 
 			if (user.passwd == password && user.deleted != 1) {
-                answer.success = true;
-                answer.message = "Usuário logado com sucesso";
-                answer.code = HTTP_CODES.OK;
+				answer.success = true;
+				answer.message = JSON.stringify({ username: user.username, email: user.email });
+				answer.code = HTTP_CODES.OK;
 			} else {
-                answer.success = false;
-                answer.message = "Senha incorreta";
-                answer.code = HTTP_CODES.BAD_REQUEST;
+				answer.success = false;
+				answer.message = "Senha incorreta";
+				answer.code = HTTP_CODES.BAD_REQUEST;
 			}
 
-            res.json(answer);
+			res.json(answer);
 		}
 	});
 });
@@ -102,7 +103,8 @@ app.post("/delete", (req, res) => {
 			if (user.passwd != password) {
 				res.send("Senha incorreta.");
 			} else {
-				const deleteQuery = "UPDATE users SET deleted = 1 WHERE email = ?";
+				const deleteQuery =
+					"UPDATE users SET deleted = 1 WHERE email = ?";
 				con.query(query, values, (err, results) => {
 					if (!err) {
 						res.send("Usuário deletado com sucesso.");
