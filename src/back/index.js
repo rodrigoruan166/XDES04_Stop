@@ -13,6 +13,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(user);
 
+app.get("/", (req, res) => res.send("Express on Vercel"));
+
 // endpoint de teste
 app.get("/teste", (_req, res) => {
 	res.statusCode = HTTP_CODES.OK;
@@ -23,3 +25,5 @@ app.get("/teste", (_req, res) => {
 app.listen(PORT, () => {
 	console.log(`Servidor rodando na porta: ${PORT}!`);
 });
+
+module.exports = app
