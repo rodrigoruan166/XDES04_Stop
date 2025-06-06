@@ -273,7 +273,7 @@
 			const nomeSalvo = localStorage.getItem("username") || "";
 			const emailSalvo = localStorage.getItem("email") || "";
 			const imagemSalva =
-				localStorage.getItem("imagemPerfil") ||
+				localStorage.getItem("avatar") ||
 				"https://cdn-icons-png.flaticon.com/512/847/847969.png";
 			const privacidadeSalva =
 				localStorage.getItem("privacidade") || "publico";
@@ -337,7 +337,7 @@
 				document.getElementById("emailInput").value =
 					localStorage.getItem("email") || "";
 				document.getElementById("imagemInput").value =
-					localStorage.getItem("imagemPerfil") || "";
+					localStorage.getItem("avatar") || "";
 				document.getElementById("privacidadeInput").value =
 					localStorage.getItem("privacidade") || "publico";
 				document.getElementById("senhaAtualInput").value = "";
@@ -390,7 +390,7 @@
                     if (data.success) {
                         localStorage.setItem("nome", novoNome);
                         localStorage.setItem("email", novoEmail);
-                        localStorage.setItem("imagemPerfil", novaImagem);
+                        localStorage.setItem("avatar", novaImagem);
                         localStorage.setItem("privacidade", novaPrivacidade);
                         localStorage.setItem("username", novoNome);
 
