@@ -11,7 +11,7 @@ async function cadastrar(e) {
     "password": password
   }
 
-  const res = await fetch('http://localhost:3000/cadastrar', {
+  const res = await fetch('https://xdes-04-stop-73agu5whg-rodrigoruans-projects.vercel.app//cadastrar', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'

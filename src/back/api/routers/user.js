@@ -50,6 +50,10 @@ app.post("/cadastrar", (req, res) => {
 app.post("/logar", (req, res) => {
 	const { email, password } = req.body;
 
+	if (!email || !password) {
+		return res.json({ success: false, message: "Campos não preenchidos." });
+	}
+
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	if (!emailRegex.test(email)) {
 		return res.json({ success: false, message: "E-mail inválido." });
