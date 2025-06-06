@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Perfil do Usuário - Stop</title>
+        <script src="./../scripts/script.js"></script>
 		<style>
 			@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap");
 
@@ -211,7 +212,7 @@
 					<button
 						class="btn-custom"
 						style="background: #ff4444; border-color: #660000; color: white; margin-top: 10px;"
-						onclick="deletarPerfil()"
+						onclick="deletar(event)"
 					>
 						Deletar Perfil
 					</button>
@@ -285,6 +286,12 @@
 			const historicoSalvo = JSON.parse(localStorage.getItem("historicoPartidas")) || [
 				{ data: "2025-05-01", resultado: "Vitória - 120 pontos (EXEMPLO)" },
 				{ data: "2025-05-03", resultado: "Derrota - 85 pontos (EXEMPLO)" },
+                { data: "2025-05-01", resultado: "Vitória - 0 pontos (EXEMPLO)" },
+				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (EXEMPLO)" },
+                { data: "2025-05-01", resultado: "Vitória - 0 pontos (EXEMPLO)" },
+				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (EXEMPLO)" },
+                { data: "2025-05-01", resultado: "Vitória - 0 pontos (EXEMPLO)" },
+				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (EXEMPLO)" },
 			];
 
 			// Atualiza exibição dos dados
@@ -380,33 +387,6 @@
 
 				cancelarEdicao();
 				alert("Perfil atualizado com sucesso!");
-			}
-
-			function deletarPerfil() {
-				const confirmar = confirm("Tem certeza que deseja deletar seu perfil? Esta ação não pode ser desfeita.");
-				if (confirmar) {
-					// Remove todos os dados relacionados
-					localStorage.removeItem("nome");
-					localStorage.removeItem("email");
-					localStorage.removeItem("senha");
-					localStorage.removeItem("imagemPerfil");
-					localStorage.removeItem("privacidade");
-					localStorage.removeItem("totalPontos");
-					localStorage.removeItem("historicoPartidas");
-
-					// Atualiza a interface para valores padrão ou mensagem
-					document.getElementById("nomeExibido").textContent = "Usuário deletado";
-					document.getElementById("emailExibido").textContent = "";
-					document.getElementById("avatarImagem").src = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
-					document.getElementById("privacidadeExibida").textContent = "";
-					document.getElementById("totalPontos").textContent = "Total de Pontos: 0";
-					document.getElementById("listaHistorico").innerHTML = "";
-
-					alert("Perfil deletado com sucesso!");
-
-					// Opcional: redirecionar para página de login ou home
-					// window.location.href = "./login.html";
-				}
 			}
 		</script>
 	</body>

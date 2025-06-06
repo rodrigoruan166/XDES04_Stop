@@ -73,8 +73,15 @@ app.post("/logar", (req, res) => {
 
 			if (user.passwd == password && user.deleted != 1) {
 				answer.success = true;
-				answer.message = JSON.stringify({ username: user.username, email: user.email });
+				answer.message = JSON.stringify({
+					username: user.username,
+					email: user.email,
+				});
 				answer.code = HTTP_CODES.OK;
+			} else if (user.deleted == 1) {
+				answer.success = false;
+				answer.message = "Usuário não encontrado";
+				answer.code = HTTP_CODES.BAD_REQUEST;
 			} else {
 				answer.success = false;
 				answer.message = "Senha incorreta";
@@ -94,24 +101,38 @@ app.post("/delete", (req, res) => {
 	const values = [email];
 
 	con.query(query, values, (err, results) => {
-		console.log(results);
-		if (!results || results.length == 0) {
-			res.send("Usuário não encontrado");
-		} else {
-			const user = results[0];
+		const answer = {};
 
-			if (user.passwd != password) {
-				res.send("Senha incorreta.");
-			} else {
-				const deleteQuery =
-					"UPDATE users SET deleted = 1 WHERE email = ?";
-				con.query(deleteQuery, values, (err, results) => {
-					if (!err) {
-						res.send("Usuário deletado com sucesso.");
-					}
-				});
-			}
+		if (results.length == 0) {
+			answer.success = false;
+			answer.message = "Usuário não encontrado";
+			answer.code = HTTP_CODES.BAD_REQUEST;
+			return res.json(answer);
 		}
+
+		const user = results[0];
+
+		if (user.passwd != password) {
+			answer.success = false;
+			answer.message = "Senha incorreta";
+			answer.code = HTTP_CODES.BAD_REQUEST;
+			return res.json(answer);
+		}
+
+		const deleteQuery = "UPDATE users SET deleted = 1 WHERE email = ?";
+		con.query(deleteQuery, values, (err, deleteResults) => {
+			if (!err) {
+				answer.success = true;
+				answer.message = "Usuário deletado com sucesso";
+				answer.code = HTTP_CODES.OK;
+			} else {
+				answer.success = false;
+				answer.message = "Erro ao deletar o usuário";
+				answer.code = HTTP_CODES.BAD_REQUEST;
+			}
+
+			res.json(answer);
+		});
 	});
 });
 
