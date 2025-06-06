@@ -59,7 +59,7 @@ app.post("/logar", (req, res) => {
 	}
 
 	const query =
-		"SELECT username, email, passwd, deleted FROM users WHERE email = ?";
+		"SELECT username, email, passwd, private, avatar FROM users WHERE email = ?";
 	const values = [email];
 
 	con.query(query, values, (err, results) => {
@@ -76,6 +76,8 @@ app.post("/logar", (req, res) => {
 				answer.message = JSON.stringify({
 					username: user.username,
 					email: user.email,
+					private: user.private,
+					avatar: user.avatar
 				});
 				answer.code = HTTP_CODES.OK;
 			} else if (user.deleted == 1) {
@@ -90,6 +92,64 @@ app.post("/logar", (req, res) => {
 		}
 
 		res.json(answer);
+	});
+});
+
+app.post("/editar", (req, res) => {
+	const { username, email, novoEmail, avatar, private, password, novoPassword } = req.body;
+
+	if (!email || !password || !username) {
+		return res.json({ success: false, message: "Campos não preenchidos." });
+	}
+
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	if (!emailRegex.test(email)) {
+		return res.json({ success: false, message: "E-mail inválido." });
+	}
+
+	const queryLook = "SELECT passwd FROM users WHERE email = ?";
+	const valuesLook = [email];
+
+	con.query(queryLook, valuesLook, (err, results) => {
+		const answer = {};
+
+		if (!results || results.length == 0) {
+			answer.success = false;
+			answer.message = 'Erro ao editar o usuário';
+			answer.code = HTTP_CODES.BAD_REQUEST;
+			res.json(answer);
+			return;
+		}
+
+		const user = results[0];
+
+		if (user.passwd != password) {
+			answer.success = false;
+			answer.message = 'Senha incorreta';
+			answer.code = HTTP_CODES.BAD_REQUEST;
+			res.json(answer);
+			return;
+		}
+
+		const query =
+		"UPDATE users SET username = ?, email = ?, avatar = ?, private = ?, passwd = ? WHERE email = ?";
+		const values = [username, novoEmail, avatar, private, novoPassword, email];
+
+		con.query(query, values, (err, results) => {
+			const answer = {};
+
+			if (err) {
+				answer.success = false;
+				answer.message = err.message;
+				answer.code = HTTP_CODES.BAD_REQUEST;
+			} else {
+				answer.success = true;
+				answer.message = "Dados alterados com sucesso";
+				answer.code = HTTP_CODES.OK;
+			}
+
+			res.json(answer);
+		});
 	});
 });
 

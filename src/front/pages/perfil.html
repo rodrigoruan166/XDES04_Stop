@@ -4,7 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Perfil do Usuário - Stop</title>
-        <script src="./../scripts/script.js"></script>
+		<script src="./../scripts/script.js"></script>
 		<style>
 			@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap");
 
@@ -171,7 +171,7 @@
 			</a>
 			<nav>
 				<a href="./home.html">Início</a>
-                <a href="./categoria.html">Categorias</a>
+				<a href="./categoria.html">Categorias</a>
 				<a href="./perfil.html">Ver Perfil</a>
 				<a href="./login.html">Sair</a>
 			</nav>
@@ -190,11 +190,8 @@
 				<div id="view-mode">
 					<h1 id="nomeExibido">Nome do Usuário</h1>
 					<p id="emailExibido">email@exemplo.com</p>
-					<p
-						id="privacidadeExibida"
-						style="margin-top: 10px"
-					></p>
-					
+					<p id="privacidadeExibida" style="margin-top: 10px"></p>
+
 					<!-- Total de pontos -->
 					<p id="totalPontos">Total de Pontos: 0</p>
 
@@ -211,7 +208,12 @@
 					</button>
 					<button
 						class="btn-custom"
-						style="background: #ff4444; border-color: #660000; color: white; margin-top: 10px;"
+						style="
+							background: #ff4444;
+							border-color: #660000;
+							color: white;
+							margin-top: 10px;
+						"
 						onclick="deletar(event)"
 					>
 						Deletar Perfil
@@ -266,32 +268,30 @@
 				<a href="./home.html" class="btn-custom">Voltar</a>
 			</div>
 		</section>
-
 		<script>
 			// Carrega dados do localStorage ou define padrões
-			const nomeSalvo = localStorage.getItem("username") || "NULL";
-			const emailSalvo =
-				localStorage.getItem("email") || "NULL";
-			const senhaSalva = localStorage.getItem("senha") || "123456";
+			const nomeSalvo = localStorage.getItem("username") || "";
+			const emailSalvo = localStorage.getItem("email") || "";
 			const imagemSalva =
 				localStorage.getItem("imagemPerfil") ||
 				"https://cdn-icons-png.flaticon.com/512/847/847969.png";
 			const privacidadeSalva =
 				localStorage.getItem("privacidade") || "publico";
 
-			// Total de pontos salvo (exemplo)
-			const totalPontosSalvo = parseInt(localStorage.getItem("totalPontos")) || 205;
+			const totalPontosSalvo =
+				parseInt(localStorage.getItem("totalPontos")) || 0;
 
-			// Histórico de partidas salvo (exemplo: array JSON)
-			const historicoSalvo = JSON.parse(localStorage.getItem("historicoPartidas")) || [
-				{ data: "2025-05-01", resultado: "Vitória - 120 pontos (EXEMPLO)" },
-				{ data: "2025-05-03", resultado: "Derrota - 85 pontos (EXEMPLO)" },
-                { data: "2025-05-01", resultado: "Vitória - 0 pontos (EXEMPLO)" },
-				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (EXEMPLO)" },
-                { data: "2025-05-01", resultado: "Vitória - 0 pontos (EXEMPLO)" },
-				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (EXEMPLO)" },
-                { data: "2025-05-01", resultado: "Vitória - 0 pontos (EXEMPLO)" },
-				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (EXEMPLO)" },
+			const historicoSalvo = JSON.parse(
+				localStorage.getItem("historicoPartidas")
+			) || [
+				{ data: "2025-05-01", resultado: "Vitória - 0 pontos (TESTE)" },
+				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (TESTE)" },
+				{ data: "2025-05-01", resultado: "Vitória - 0 pontos (TESTE)" },
+				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (TESTE)" },
+				{ data: "2025-05-01", resultado: "Vitória - 0 pontos (TESTE)" },
+				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (TESTE)" },
+				{ data: "2025-05-01", resultado: "Vitória - 0 pontos (TESTE)" },
+				{ data: "2025-05-03", resultado: "Derrota - 0 pontos (TESTE)" },
 			];
 
 			// Atualiza exibição dos dados
@@ -303,12 +303,15 @@
 			).textContent = `Perfil: ${
 				privacidadeSalva === "publico" ? "Público" : "Privado"
 			}`;
-			document.getElementById("totalPontos").textContent = `Total de Pontos: ${totalPontosSalvo}`;
+			document.getElementById(
+				"totalPontos"
+			).textContent = `Total de Pontos: ${totalPontosSalvo}`;
 
 			document.getElementById("nomeInput").value = nomeSalvo;
 			document.getElementById("emailInput").value = emailSalvo;
 			document.getElementById("imagemInput").value = imagemSalva;
-			document.getElementById("privacidadeInput").value = privacidadeSalva;
+			document.getElementById("privacidadeInput").value =
+				privacidadeSalva;
 
 			// Preenche lista do histórico de partidas
 			const listaHistorico = document.getElementById("listaHistorico");
@@ -341,7 +344,7 @@
 				document.getElementById("novaSenhaInput").value = "";
 			}
 
-			function salvarPerfil() {
+			async function salvarPerfil() {
 				const novoNome = document
 					.getElementById("nomeInput")
 					.value.trim();
@@ -358,35 +361,55 @@
 				const novaSenha =
 					document.getElementById("novaSenhaInput").value;
 
-				const senhaSalva = localStorage.getItem("senha") || "123456";
-
-				if (senhaAtual !== senhaSalva) {
+				if (!senhaAtual) {
 					alert(
-						"Senha atual incorreta. Nenhuma alteração foi salva."
+						"Senha atual inválida. Nenhuma alteração foi salva."
 					);
 					return;
 				}
 
-				localStorage.setItem("nome", novoNome);
-				localStorage.setItem("email", novoEmail);
-				localStorage.setItem("imagemPerfil", novaImagem);
-				localStorage.setItem("privacidade", novaPrivacidade);
+                const data = {
+                    username: novoNome,
+                    email: localStorage.getItem('email'),
+                    novoEmail: novoEmail,
+                    avatar: novaImagem,
+                    private: novaPrivacidade == 1,
+                    password: senhaAtual,
+                    novoPassword: novaSenha == "" ? senhaAtual : novaSenha
+                }
 
-				if (novaSenha.trim() !== "") {
-					localStorage.setItem("senha", novaSenha.trim());
-				}
+                await fetch("http://localhost:3000/editar", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) {
+                        localStorage.setItem("nome", novoNome);
+                        localStorage.setItem("email", novoEmail);
+                        localStorage.setItem("imagemPerfil", novaImagem);
+                        localStorage.setItem("privacidade", novaPrivacidade);
+                        localStorage.setItem("username", novoNome);
 
-				document.getElementById("nomeExibido").textContent = novoNome;
-				document.getElementById("emailExibido").textContent = novoEmail;
-				document.getElementById("avatarImagem").src = novaImagem;
-				document.getElementById(
-					"privacidadeExibida"
-				).textContent = `Perfil: ${
-					novaPrivacidade === "publico" ? "Público" : "Privado"
-				}`;
+                        document.getElementById("nomeExibido").textContent = novoNome;
+                        document.getElementById("emailExibido").textContent = novoEmail;
+                        document.getElementById("avatarImagem").src = novaImagem;
+                        document.getElementById(
+                            "privacidadeExibida"
+                        ).textContent = `Perfil: ${
+                            novaPrivacidade === "publico" ? "Público" : "Privado"
+                        }`;
 
-				cancelarEdicao();
-				alert("Perfil atualizado com sucesso!");
+                        cancelarEdicao();
+                        alert("Perfil atualizado com sucesso!");
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch((err) => alert(err));
 			}
 		</script>
 	</body>
