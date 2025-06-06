@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stop - Jogue Agora!</title>
+  <script src="./../scripts/script.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
+
+    body {
+      margin: 0;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 200;
+      background: url('./../../images/background.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      overflow-x: hidden;
+      min-height: 100vh; /* Ensure body takes full viewport height */
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header nav a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      z-index: -1;
+    }
+
+    body {
+      position: relative;
+      z-index: 0;
+    }
+
+    .main {
+      backdrop-filter: blur(1px);
+      -webkit-backdrop-filter: blur(1px);
+      border-radius: 20px;
+      padding: 60px 40px;
+      margin: 40px auto; /* Center horizontally with auto margins */
+      display: flex;
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      flex-wrap: wrap;
+      flex-grow: 1; /* Allow main section to grow and fill space */
+      min-height: calc(100vh - 160px); /* Adjust height to account for header and footer */
+      box-sizing: border-box;
+    }
+
+    .left {
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .left h1 {
+      font-size: 42px;
+      color: #dfd8d8;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 4px #000000be;
+    }
+
+    .left p {
+      font-size: 18px;
+      color: #fff;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .btn-custom {
+      display: inline-flex;
+      align-items: center;
+      background: #FFC800;
+      color: #000000;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 14px 28px;
+      border: 4px solid #000000;
+      border-radius: 50px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      margin: 0 auto;
+    }
+
+    .btn-custom:hover {
+      background: #FFE05F;
+      color: #000;
+    }
+
+    .btn-custom .icon {
+      background: #FF0050;
+      color: white;
+      font-size: 20px;
+      margin-right: 12px;
+      padding: 6px 10px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-options {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .login-options p {
+      color: #fff;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .login-options img {
+      width: 40px;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #eee;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        padding: 30px 20px;
+        margin: 20px auto;
+        min-height: calc(100vh - 120px); /* Adjust for smaller header/footer */
+      }
+
+      .left h1 {
+        font-size: 32px;
+      }
+
+      .left p {
+        font-size: 16px;
+      }
+
+      .btn-custom {
+        font-size: 14px;
+        padding: 12px 24px;
+      }
+
+      .login-options img {
+        width: 35px;
+        margin: 0 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main {
+        padding: 20px 10px;
+        margin: 10px auto;
+        min-height: calc(100vh - 100px); /* Adjust for smaller header/footer */
+      }
+
+      .left h1 {
+        font-size: 28px;
+      }
+
+      .left p {
+        font-size: 14px;
+      }
+
+      .btn-custom {
+        font-size: 12px;
+        padding: 10px 20px;
+      }
+
+      .login-options img {
+        width: 30px;
+        margin: 0 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="./index.html">
+        <img src="/mnt/data/a30fc0b0-bd78-49f9-b631-48c0fca9494f.png" alt="StopotS logo" height="50">
+    </a>
+    <nav>
+      <a href="#como-funciona">Como Funciona</a>
+      <a href="./cadastrar.html">Cadastrar</a>
+      <a href="./login.html">Entrar</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    LOGADO!!!!!!!!!!
+  </section>
+
+  <footer>
+    © 2025 Stop - Criado por Rodrigo, Rodolfo, Caio e Rafael.
+  </footer>
+</body>
+</html>
