@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Perfil do Usuário - Stop</title>
+		<style>
+			@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap");
+
+			body {
+				margin: 0;
+				font-family: "Fredoka", sans-serif;
+				background: url("https://i.postimg.cc/DzHNSmDC/background.jpg")
+					no-repeat center center fixed;
+				background-size: cover;
+				color: #fff;
+				display: flex;
+				flex-direction: column;
+				min-height: 100vh;
+			}
+
+			body::before {
+				content: "";
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.2);
+				z-index: -1;
+			}
+
+			header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 20px 40px;
+			}
+
+			header nav a {
+				margin: 0 15px;
+				color: #fff;
+				text-decoration: none;
+				font-weight: bold;
+				text-shadow: 1px 1px 4px #000;
+			}
+
+			.main {
+				flex-grow: 1;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				padding: 40px 20px;
+			}
+
+			.card {
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+				border: 2px solid rgba(255, 255, 255, 0.3);
+				border-radius: 15px;
+				box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+				padding: 30px;
+				max-width: 400px;
+				width: 100%;
+				text-align: center;
+			}
+
+			.avatar {
+				width: 100px;
+				height: 100px;
+				border-radius: 50%;
+				object-fit: cover;
+				border: 3px solid #fff;
+			}
+
+			h1 {
+				margin-bottom: 10px;
+				font-size: 26px;
+				text-shadow: 1px 1px 4px #000;
+			}
+
+			p {
+				margin: 5px 0;
+				font-size: 16px;
+				text-shadow: 1px 1px 4px #000;
+			}
+
+			input {
+				width: 100%;
+				padding: 12px;
+				margin-bottom: 15px;
+				border: none;
+				border-radius: 12px;
+				font-size: 14px;
+				background: #eee;
+				color: #333;
+				box-sizing: border-box;
+			}
+
+			.btn-custom {
+				display: inline-block;
+				background: #ffc800;
+				color: #000;
+				font-weight: bold;
+				font-size: 16px;
+				padding: 12px 24px;
+				border: 4px solid #000;
+				border-radius: 50px;
+				cursor: pointer;
+				transition: 0.3s;
+				text-decoration: none;
+				margin-top: 10px;
+			}
+
+			.btn-custom:hover {
+				background: #ffe05f;
+			}
+
+			#totalPontos {
+				font-weight: 600;
+				font-size: 18px;
+				margin-top: 15px;
+				text-shadow: 1px 1px 4px #000;
+			}
+
+			#historicoPartidas {
+				margin-top: 20px;
+				text-align: left;
+				max-height: 150px;
+				overflow-y: auto;
+				background: rgba(255, 255, 255, 0.15);
+				border-radius: 12px;
+				padding: 10px 15px;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+			}
+
+			#historicoPartidas h2 {
+				font-size: 20px;
+				margin-bottom: 10px;
+				text-align: center;
+			}
+
+			#historicoPartidas ul {
+				list-style: none;
+				padding-left: 0;
+				margin: 0;
+			}
+
+			#historicoPartidas ul li {
+				padding: 8px 6px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+				font-size: 14px;
+				color: #eee;
+			}
+
+			#historicoPartidas ul li:last-child {
+				border-bottom: none;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<a href="./home.html">
+				<img
+					src="/mnt/data/a30fc0b0-bd78-49f9-b631-48c0fca9494f.png"
+					alt="StopotS logo"
+					height="50"
+				/>
+			</a>
+			<nav>
+				<a href="./home.html">Início</a>
+				<a href="./perfil.html">Ver Perfil</a>
+				<a href="./login.html">Sair</a>
+			</nav>
+		</header>
+
+		<section class="main">
+			<div class="card">
+				<img
+					id="avatarImagem"
+					src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
+					alt="Avatar do usuário"
+					class="avatar"
+				/>
+
+				<!-- Modo de visualização -->
+				<div id="view-mode">
+					<h1 id="nomeExibido">Nome do Usuário</h1>
+					<p id="emailExibido">email@exemplo.com</p>
+					<p
+						id="privacidadeExibida"
+						style="margin-top: 10px"
+					></p>
+					
+					<!-- Total de pontos -->
+					<p id="totalPontos">Total de Pontos: 0</p>
+
+					<!-- Histórico de partidas -->
+					<div id="historicoPartidas">
+						<h2>Histórico de Partidas</h2>
+						<ul id="listaHistorico">
+							<!-- Itens gerados via JS -->
+						</ul>
+					</div>
+
+					<button class="btn-custom" onclick="editarPerfil()">
+						Editar Perfil
+					</button>
+					<button
+						class="btn-custom"
+						style="background: #ff4444; border-color: #660000; color: white; margin-top: 10px;"
+						onclick="deletarPerfil()"
+					>
+						Deletar Perfil
+					</button>
+				</div>
+
+				<!-- Modo de edição -->
+				<div id="edit-mode" style="display: none">
+					<input type="text" id="nomeInput" placeholder="Nome" />
+					<input type="email" id="emailInput" placeholder="Email" />
+					<input
+						type="text"
+						id="imagemInput"
+						placeholder="URL da imagem de perfil"
+					/>
+					<select
+						id="privacidadeInput"
+						style="
+							width: 100%;
+							padding: 12px;
+							margin-bottom: 15px;
+							border: none;
+							border-radius: 12px;
+							font-size: 14px;
+							background: #eee;
+							color: #333;
+							box-sizing: border-box;
+						"
+					>
+						<option value="publico">Perfil Público</option>
+						<option value="privado">Perfil Privado</option>
+					</select>
+					<input
+						type="password"
+						id="senhaAtualInput"
+						placeholder="Senha atual (obrigatória)"
+					/>
+					<input
+						type="password"
+						id="novaSenhaInput"
+						placeholder="Nova senha (opcional)"
+					/>
+
+					<button class="btn-custom" onclick="salvarPerfil()">
+						Salvar
+					</button>
+					<button class="btn-custom" onclick="cancelarEdicao()">
+						Cancelar
+					</button>
+				</div>
+
+				<a href="./home.html" class="btn-custom">Voltar</a>
+			</div>
+		</section>
+
+		<script>
+			// Carrega dados do localStorage ou define padrões
+			const nomeSalvo = localStorage.getItem("nome") || "Rodrigo Souza";
+			const emailSalvo =
+				localStorage.getItem("email") || "rodrigo@example.com";
+			const senhaSalva = localStorage.getItem("senha") || "123456";
+			const imagemSalva =
+				localStorage.getItem("imagemPerfil") ||
+				"https://cdn-icons-png.flaticon.com/512/847/847969.png";
+			const privacidadeSalva =
+				localStorage.getItem("privacidade") || "publico";
+
+			// Total de pontos salvo (exemplo)
+			const totalPontosSalvo = parseInt(localStorage.getItem("totalPontos")) || 0;
+
+			// Histórico de partidas salvo (exemplo: array JSON)
+			const historicoSalvo = JSON.parse(localStorage.getItem("historicoPartidas")) || [
+				{ data: "2025-05-01", resultado: "Vitória - 120 pontos" },
+				{ data: "2025-05-03", resultado: "Derrota - 85 pontos" },
+			];
+
+			// Atualiza exibição dos dados
+			document.getElementById("nomeExibido").textContent = nomeSalvo;
+			document.getElementById("emailExibido").textContent = emailSalvo;
+			document.getElementById("avatarImagem").src = imagemSalva;
+			document.getElementById(
+				"privacidadeExibida"
+			).textContent = `Perfil: ${
+				privacidadeSalva === "publico" ? "Público" : "Privado"
+			}`;
+			document.getElementById("totalPontos").textContent = `Total de Pontos: ${totalPontosSalvo}`;
+
+			document.getElementById("nomeInput").value = nomeSalvo;
+			document.getElementById("emailInput").value = emailSalvo;
+			document.getElementById("imagemInput").value = imagemSalva;
+			document.getElementById("privacidadeInput").value = privacidadeSalva;
+
+			// Preenche lista do histórico de partidas
+			const listaHistorico = document.getElementById("listaHistorico");
+			listaHistorico.innerHTML = "";
+			historicoSalvo.forEach((partida) => {
+				const li = document.createElement("li");
+				li.textContent = `${partida.data}: ${partida.resultado}`;
+				listaHistorico.appendChild(li);
+			});
+
+			function editarPerfil() {
+				document.getElementById("view-mode").style.display = "none";
+				document.getElementById("edit-mode").style.display = "block";
+			}
+
+			function cancelarEdicao() {
+				document.getElementById("edit-mode").style.display = "none";
+				document.getElementById("view-mode").style.display = "block";
+
+				// Restaura campos
+				document.getElementById("nomeInput").value =
+					localStorage.getItem("nome") || "";
+				document.getElementById("emailInput").value =
+					localStorage.getItem("email") || "";
+				document.getElementById("imagemInput").value =
+					localStorage.getItem("imagemPerfil") || "";
+				document.getElementById("privacidadeInput").value =
+					localStorage.getItem("privacidade") || "publico";
+				document.getElementById("senhaAtualInput").value = "";
+				document.getElementById("novaSenhaInput").value = "";
+			}
+
+			function salvarPerfil() {
+				const novoNome = document
+					.getElementById("nomeInput")
+					.value.trim();
+				const novoEmail = document
+					.getElementById("emailInput")
+					.value.trim();
+				const novaImagem = document
+					.getElementById("imagemInput")
+					.value.trim();
+				const novaPrivacidade =
+					document.getElementById("privacidadeInput").value;
+				const senhaAtual =
+					document.getElementById("senhaAtualInput").value;
+				const novaSenha =
+					document.getElementById("novaSenhaInput").value;
+
+				const senhaSalva = localStorage.getItem("senha") || "123456";
+
+				if (senhaAtual !== senhaSalva) {
+					alert(
+						"Senha atual incorreta. Nenhuma alteração foi salva."
+					);
+					return;
+				}
+
+				localStorage.setItem("nome", novoNome);
+				localStorage.setItem("email", novoEmail);
+				localStorage.setItem("imagemPerfil", novaImagem);
+				localStorage.setItem("privacidade", novaPrivacidade);
+
+				if (novaSenha.trim() !== "") {
+					localStorage.setItem("senha", novaSenha.trim());
+				}
+
+				document.getElementById("nomeExibido").textContent = novoNome;
+				document.getElementById("emailExibido").textContent = novoEmail;
+				document.getElementById("avatarImagem").src = novaImagem;
+				document.getElementById(
+					"privacidadeExibida"
+				).textContent = `Perfil: ${
+					novaPrivacidade === "publico" ? "Público" : "Privado"
+				}`;
+
+				cancelarEdicao();
+				alert("Perfil atualizado com sucesso!");
+			}
+
+			function deletarPerfil() {
+				const confirmar = confirm("Tem certeza que deseja deletar seu perfil? Esta ação não pode ser desfeita.");
+				if (confirmar) {
+					// Remove todos os dados relacionados
+					localStorage.removeItem("nome");
+					localStorage.removeItem("email");
+					localStorage.removeItem("senha");
+					localStorage.removeItem("imagemPerfil");
+					localStorage.removeItem("privacidade");
+					localStorage.removeItem("totalPontos");
+					localStorage.removeItem("historicoPartidas");
+
+					// Atualiza a interface para valores padrão ou mensagem
+					document.getElementById("nomeExibido").textContent = "Usuário deletado";
+					document.getElementById("emailExibido").textContent = "";
+					document.getElementById("avatarImagem").src = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+					document.getElementById("privacidadeExibida").textContent = "";
+					document.getElementById("totalPontos").textContent = "Total de Pontos: 0";
+					document.getElementById("listaHistorico").innerHTML = "";
+
+					alert("Perfil deletado com sucesso!");
+
+					// Opcional: redirecionar para página de login ou home
+					// window.location.href = "./login.html";
+				}
+			}
+		</script>
+	</body>
+</html>

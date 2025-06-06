@@ -54,7 +54,7 @@ async function entrar(e) {
   .then(data => {
     if (data.success) {
       alert("Logado com sucesso.");
-      window.location.href = './homepage.html';
+      window.location.href = './home.html';
     } else {
       alert(data.message);
     }
