@@ -272,9 +272,9 @@
 			// Carrega dados do localStorage ou define padrões
 			const nomeSalvo = localStorage.getItem("username") || "";
 			const emailSalvo = localStorage.getItem("email") || "";
-			const imagemSalva =
-				localStorage.getItem("avatar") ||
-				"https://cdn-icons-png.flaticon.com/512/847/847969.png";
+			const imagemSalva = localStorage.getItem("avatar");
+			if (imagemSalva == 'null')
+				imagemSalva = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 			const privacidadeSalva =
 				localStorage.getItem("privacidade") || "publico";
 
