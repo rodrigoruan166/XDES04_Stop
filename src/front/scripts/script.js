@@ -43,7 +43,7 @@ async function entrar(e) {
     "password": password
   }
 
-  const res = await fetch('http://localhost:3000/logar', {
+  const res = await fetch('https://xdes-04-stop-73agu5whg-rodrigoruans-projects.vercel.app/logar', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
