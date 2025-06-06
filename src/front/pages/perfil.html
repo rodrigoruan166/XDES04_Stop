@@ -170,6 +170,7 @@
 			</a>
 			<nav>
 				<a href="./home.html">Início</a>
+                <a href="./categoria.html">Categorias</a>
 				<a href="./perfil.html">Ver Perfil</a>
 				<a href="./login.html">Sair</a>
 			</nav>
@@ -267,9 +268,9 @@
 
 		<script>
 			// Carrega dados do localStorage ou define padrões
-			const nomeSalvo = localStorage.getItem("nome") || "Rodrigo Souza";
+			const nomeSalvo = localStorage.getItem("username") || "NULL";
 			const emailSalvo =
-				localStorage.getItem("email") || "rodrigo@example.com";
+				localStorage.getItem("email") || "NULL";
 			const senhaSalva = localStorage.getItem("senha") || "123456";
 			const imagemSalva =
 				localStorage.getItem("imagemPerfil") ||
@@ -278,12 +279,12 @@
 				localStorage.getItem("privacidade") || "publico";
 
 			// Total de pontos salvo (exemplo)
-			const totalPontosSalvo = parseInt(localStorage.getItem("totalPontos")) || 0;
+			const totalPontosSalvo = parseInt(localStorage.getItem("totalPontos")) || 205;
 
 			// Histórico de partidas salvo (exemplo: array JSON)
 			const historicoSalvo = JSON.parse(localStorage.getItem("historicoPartidas")) || [
-				{ data: "2025-05-01", resultado: "Vitória - 120 pontos" },
-				{ data: "2025-05-03", resultado: "Derrota - 85 pontos" },
+				{ data: "2025-05-01", resultado: "Vitória - 120 pontos (EXEMPLO)" },
+				{ data: "2025-05-03", resultado: "Derrota - 85 pontos (EXEMPLO)" },
 			];
 
 			// Atualiza exibição dos dados

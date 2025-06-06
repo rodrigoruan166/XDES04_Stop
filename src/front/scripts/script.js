@@ -11,7 +11,7 @@ async function cadastrar(e) {
     "password": password
   }
 
-  const res = await fetch('https://xdes-04-stop-73agu5whg-rodrigoruans-projects.vercel.app/cadastrar', {
+  await fetch('https://xdes-04-stop.vercel.app/cadastrar', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
@@ -20,6 +20,7 @@ async function cadastrar(e) {
   })
   .then(res => res.json())
   .then(data => {
+    console.log(data);
     if (data.success) {
       alert("Usuário cadastrado com sucesso.");
       window.location.href = './login.html';
@@ -28,8 +29,6 @@ async function cadastrar(e) {
     }
   })
   .catch(err => alert('Erro ao cadastrar.'));
-
-  console.log(res);
 }
 
 async function entrar(e) {
@@ -43,7 +42,7 @@ async function entrar(e) {
     "password": password
   }
 
-  const res = await fetch('https://xdes-04-stop-73agu5whg-rodrigoruans-projects.vercel.app/logar', {
+  await fetch('https://xdes-04-stop.vercel.app/logar', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
@@ -52,8 +51,10 @@ async function entrar(e) {
   })
   .then(res => res.json())
   .then(data => {
-    console.log(data);
     if (data.success) {
+      const info = JSON.parse(data.message);
+      localStorage.setItem('username', info.username);
+      localStorage.setItem('email', info.email);
       alert("Logado com sucesso.");
       window.location.href = './home.html';
     } else {
@@ -61,6 +62,4 @@ async function entrar(e) {
     }
   })
   .catch(err => alert(err));
-
-  console.log(res);
 }

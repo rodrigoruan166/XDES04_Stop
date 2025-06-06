@@ -31,17 +31,18 @@ app.post("/cadastrar", (req, res) => {
 	con.query(query, values, (err, results) => {
 		const answer = {};
 		if (!results) {
+			console.log(results);
 			answer.success = false;
 			answer.message = err.code;
 			answer.code = HTTP_CODES.BAD_REQUEST;
 			res.status(HTTP_CODES.BAD_REQUEST);
-			res.json(answer);
 		} else {
 			res.status(HTTP_CODES.OK);
 			answer.success = true;
 			answer.message = "Usuário cadastrado com sucesso.";
-			res.json(answer);
 		}
+
+		res.json(answer);
 	});
 });
 
