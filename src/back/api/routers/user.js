@@ -7,8 +7,6 @@ const app = Router();
 app.post("/cadastrar", (req, res) => {
 	const { email, username, password } = req.body;
 
-    console.log(req.body);
-
 	if (!email || !username || !password) {
 		return res.json({
 			success: false,

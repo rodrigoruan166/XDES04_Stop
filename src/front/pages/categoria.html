@@ -63,7 +63,7 @@
       border-radius: 15px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
       padding: 30px;
-      max-width: 400px;
+      max-width: 450px;
       width: 100%;
       text-align: center;
     }
@@ -74,7 +74,8 @@
       text-shadow: 1px 1px 4px #000;
     }
 
-    input[type="text"] {
+    input[type="text"],
+    textarea {
       width: 100%;
       padding: 12px;
       margin-bottom: 15px;
@@ -84,6 +85,12 @@
       background: #eee;
       color: #333;
       box-sizing: border-box;
+      resize: vertical;
+    }
+
+    textarea {
+      min-height: 60px;
+      font-family: "Fredoka", sans-serif;
     }
 
     .btn-custom {
@@ -129,9 +136,30 @@
       border-bottom: none;
     }
 
+    .categoria-info {
+      flex-grow: 1;
+      margin-right: 15px;
+      user-select: text;
+    }
+
+    .categoria-info strong {
+      display: block;
+      font-weight: 700;
+      font-size: 18px;
+      color: #ffc800;
+      margin-bottom: 3px;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    .categoria-info span {
+      font-size: 14px;
+      color: #ddd;
+    }
+
     .actions {
       display: flex;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     .actions button {
@@ -154,13 +182,20 @@
       filter: brightness(85%);
     }
 
-    .edit-input {
+    .edit-input,
+    .edit-textarea {
       flex-grow: 1;
       padding: 6px 10px;
       border-radius: 8px;
       border: none;
       font-size: 16px;
       margin-right: 10px;
+      font-family: "Fredoka", sans-serif;
+    }
+
+    .edit-textarea {
+      min-height: 50px;
+      resize: vertical;
     }
 
     .no-categories {
@@ -191,7 +226,8 @@
   <section class="main">
     <div class="card">
       <h1>Gerenciar Categorias</h1>
-      <input type="text" id="novaCategoriaInput" placeholder="Nova categoria" />
+      <input type="text" id="nomeCategoriaInput" placeholder="Nome da categoria" />
+      <textarea id="descricaoCategoriaInput" placeholder="Descrição da categoria"></textarea>
       <button class="btn-custom" onclick="adicionarCategoria()">Adicionar</button>
 
       <ul id="listaCategorias">
@@ -205,7 +241,8 @@
     let categorias = JSON.parse(localStorage.getItem("categorias")) || [];
 
     const listaCategorias = document.getElementById("listaCategorias");
-    const novaCategoriaInput = document.getElementById("novaCategoriaInput");
+    const nomeCategoriaInput = document.getElementById("nomeCategoriaInput");
+    const descricaoCategoriaInput = document.getElementById("descricaoCategoriaInput");
 
     // Função para salvar no localStorage
     function salvarCategorias() {
@@ -227,9 +264,18 @@
       categorias.forEach((categoria, index) => {
         const li = document.createElement("li");
 
-        const span = document.createElement("span");
-        span.textContent = categoria;
-        li.appendChild(span);
+        const infoDiv = document.createElement("div");
+        infoDiv.classList.add("categoria-info");
+
+        const nomeStrong = document.createElement("strong");
+        nomeStrong.textContent = categoria.nome;
+        infoDiv.appendChild(nomeStrong);
+
+        const descSpan = document.createElement("span");
+        descSpan.textContent = categoria.descricao;
+        infoDiv.appendChild(descSpan);
+
+        li.appendChild(infoDiv);
 
         const actionsDiv = document.createElement("div");
         actionsDiv.classList.add("actions");
@@ -238,7 +284,7 @@
         const btnEditar = document.createElement("button");
         btnEditar.textContent = "Editar";
         btnEditar.classList.add("edit-btn");
-        btnEditar.onclick = () => iniciarEdicao(index, li, span, btnEditar);
+        btnEditar.onclick = () => iniciarEdicao(index, li, infoDiv, btnEditar);
         actionsDiv.appendChild(btnEditar);
 
         // Botão Remover
@@ -255,29 +301,37 @@
 
     // Função para adicionar categoria nova
     function adicionarCategoria() {
-      const novoNome = novaCategoriaInput.value.trim();
+      const nome = nomeCategoriaInput.value.trim();
+      const descricao = descricaoCategoriaInput.value.trim();
 
-      if (!novoNome) {
+      if (!nome) {
         alert("Por favor, insira o nome da categoria.");
         return;
       }
 
-      // Verifica duplicado
-      if (categorias.some(cat => cat.toLowerCase() === novoNome.toLowerCase())) {
+      if (!descricao) {
+        alert("Por favor, insira a descrição da categoria.");
+        return;
+      }
+
+      // Verifica duplicado pelo nome (case insensitive)
+      if (categorias.some(cat => cat.nome.toLowerCase() === nome.toLowerCase())) {
         alert("Categoria já cadastrada.");
         return;
       }
 
-      categorias.push(novoNome);
+      categorias.push({ nome, descricao });
       salvarCategorias();
       renderizarCategorias();
-      novaCategoriaInput.value = "";
+
+      nomeCategoriaInput.value = "";
+      descricaoCategoriaInput.value = "";
     }
 
     // Função para remover categoria
     function removerCategoria(index) {
       if (
-        confirm(`Tem certeza que deseja remover a categoria "${categorias[index]}"?`)
+        confirm(`Tem certeza que deseja remover a categoria "${categorias[index].nome}"?`)
       ) {
         categorias.splice(index, 1);
         salvarCategorias();
@@ -286,26 +340,32 @@
     }
 
     // Iniciar edição de categoria
-    function iniciarEdicao(index, li, span, btnEditar) {
-      // Oculta o texto e botão editar
-      span.style.display = "none";
+    function iniciarEdicao(index, li, infoDiv, btnEditar) {
+      // Oculta as infos e botão editar
+      infoDiv.style.display = "none";
       btnEditar.style.display = "none";
 
-      // Criar input para edição
-      const inputEdicao = document.createElement("input");
-      inputEdicao.type = "text";
-      inputEdicao.value = categorias[index];
-      inputEdicao.classList.add("edit-input");
-      li.insertBefore(inputEdicao, span);
+      // Cria inputs para edição
+      const inputNome = document.createElement("input");
+      inputNome.type = "text";
+      inputNome.value = categorias[index].nome;
+      inputNome.classList.add("edit-input");
 
-      // Criar botão salvar
+      const inputDesc = document.createElement("textarea");
+      inputDesc.value = categorias[index].descricao;
+      inputDesc.classList.add("edit-textarea");
+
+      // Insere inputs antes da infoDiv no li
+      li.insertBefore(inputNome, infoDiv);
+      li.insertBefore(inputDesc, infoDiv);
+
+      // Botões salvar e cancelar
       const btnSalvar = document.createElement("button");
       btnSalvar.textContent = "Salvar";
       btnSalvar.classList.add("btn-custom");
       btnSalvar.style.padding = "6px 12px";
       btnSalvar.style.fontSize = "14px";
 
-      // Criar botão cancelar
       const btnCancelar = document.createElement("button");
       btnCancelar.textContent = "Cancelar";
       btnCancelar.classList.add("btn-custom");
@@ -315,47 +375,52 @@
       btnCancelar.style.fontSize = "14px";
       btnCancelar.style.marginLeft = "8px";
 
-      // Substitui o botão editar e botão remover pelo salvar e cancelar
       const actionsDiv = li.querySelector(".actions");
       actionsDiv.style.display = "none";
 
       li.appendChild(btnSalvar);
       li.appendChild(btnCancelar);
 
-      // Foco no input
-      inputEdicao.focus();
+      inputNome.focus();
 
       btnSalvar.onclick = () => {
-        const novoNome = inputEdicao.value.trim();
+        const novoNome = inputNome.value.trim();
+        const novaDesc = inputDesc.value.trim();
 
         if (!novoNome) {
           alert("O nome da categoria não pode ficar vazio.");
-          inputEdicao.focus();
+          inputNome.focus();
           return;
         }
 
-        // Verifica se já existe outra categoria com esse nome
+        if (!novaDesc) {
+          alert("A descrição da categoria não pode ficar vazia.");
+          inputDesc.focus();
+          return;
+        }
+
+        // Verifica duplicado (exceto o atual)
         if (
           categorias.some(
-            (cat, idx) => cat.toLowerCase() === novoNome.toLowerCase() && idx !== index
+            (cat, idx) => cat.nome.toLowerCase() === novoNome.toLowerCase() && idx !== index
           )
         ) {
           alert("Já existe uma categoria com esse nome.");
-          inputEdicao.focus();
+          inputNome.focus();
           return;
         }
 
-        categorias[index] = novoNome;
+        categorias[index] = { nome: novoNome, descricao: novaDesc };
         salvarCategorias();
         renderizarCategorias();
       };
 
       btnCancelar.onclick = () => {
-        // Remove inputs e mostra texto e ações originais
-        inputEdicao.remove();
+        inputNome.remove();
+        inputDesc.remove();
         btnSalvar.remove();
         btnCancelar.remove();
-        span.style.display = "inline";
+        infoDiv.style.display = "block";
         btnEditar.style.display = "inline";
         actionsDiv.style.display = "flex";
       };
