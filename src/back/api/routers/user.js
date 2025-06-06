@@ -67,7 +67,6 @@ app.post("/logar", (req, res) => {
 			answer.success = false;
 			answer.message = "Usuário não encontrado";
 			answer.code = HTTP_CODES.BAD_REQUEST;
-			res.json(answer);
 		} else {
 			const user = results[0];
 
@@ -80,9 +79,9 @@ app.post("/logar", (req, res) => {
 				answer.message = "Senha incorreta";
 				answer.code = HTTP_CODES.BAD_REQUEST;
 			}
-
-			res.json(answer);
 		}
+
+		res.json(answer);
 	});
 });
 
