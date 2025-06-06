@@ -1,0 +1,31 @@
+{
+  "name": "xdes04_stop",
+  "version": "1.0.0",
+  "description": "[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) [![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/seu-usuario/stopots/releases)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rodrigoruan166/XDES04_Stop.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rodrigoruan166/XDES04_Stop/issues"
+  },
+  "homepage": "https://github.com/rodrigoruan166/XDES04_Stop#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "multer": "^2.0.1",
+    "mysql2": "^3.14.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30"
+  }
+}
