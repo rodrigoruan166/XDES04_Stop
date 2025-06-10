@@ -59,7 +59,7 @@ app.post("/logar", (req, res) => {
 	}
 
 	const query =
-		"SELECT username, email, passwd, private, avatar FROM users WHERE email = ?";
+		"SELECT username, email, passwd, private, avatar, deleted FROM users WHERE email = ?";
 	const values = [email];
 
 	con.query(query, values, (err, results) => {
