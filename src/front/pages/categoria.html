@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerenciar Categorias - Stop</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap");
+
+    body {
+      margin: 0;
+      font-family: "Fredoka", sans-serif;
+      background: url("https://i.postimg.cc/DzHNSmDC/background.jpg")
+        no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      z-index: -1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header nav a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .main {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      background: #eee;
+      color: #333;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+
+    textarea {
+      min-height: 60px;
+      font-family: "Fredoka", sans-serif;
+    }
+
+    .btn-custom {
+      display: inline-block;
+      background: #ffc800;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 12px 24px;
+      border: 4px solid #000;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-decoration: none;
+      margin: 5px 3px 0 3px;
+    }
+
+    .btn-custom:hover {
+      background: #ffe05f;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      max-height: 280px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    li {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #eee;
+      user-select: none;
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    .categoria-info {
+      flex-grow: 1;
+      margin-right: 15px;
+      user-select: text;
+    }
+
+    .categoria-info strong {
+      display: block;
+      font-weight: 700;
+      font-size: 18px;
+      color: #ffc800;
+      margin-bottom: 3px;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    .categoria-info span {
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .actions button {
+      background: #ff4c4c;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .actions button.edit-btn {
+      background: #ffa500;
+    }
+
+    .actions button:hover {
+      filter: brightness(85%);
+    }
+
+    .edit-input,
+    .edit-textarea {
+      flex-grow: 1;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      margin-right: 10px;
+      font-family: "Fredoka", sans-serif;
+    }
+
+    .edit-textarea {
+      min-height: 50px;
+      resize: vertical;
+    }
+
+    .no-categories {
+      color: #ccc;
+      font-style: italic;
+      padding: 20px 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="./home.html">
+      <img
+        src="https://i.postimg.cc/fbVMvxkD/upscalemedia-transformed.png"
+        alt="StopotS logo"
+        height="50"
+      />
+    </a>
+    <nav>
+      <a href="./home.html">Início</a>
+      <a href="#categoria.html">Categorias</a>
+      <a href="./perfil.html">Ver Perfil</a>
+      <a href="./login.html">Sair</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    <div class="card">
+      <h1>Gerenciar Categorias</h1>
+      <input type="text" id="nomeCategoriaInput" placeholder="Nome da categoria" />
+      <textarea id="descricaoCategoriaInput" placeholder="Descrição da categoria"></textarea>
+      <button class="btn-custom" onclick="adicionarCategoria()">Adicionar</button>
+
+      <ul id="listaCategorias">
+        <!-- Categorias vão aparecer aqui -->
+      </ul>
+    </div>
+  </section>
+
+  <script>
+    // Carrega categorias do localStorage ou inicia com array vazio
+    let categorias = JSON.parse(localStorage.getItem("categorias")) || [];
+
+    const listaCategorias = document.getElementById("listaCategorias");
+    const nomeCategoriaInput = document.getElementById("nomeCategoriaInput");
+    const descricaoCategoriaInput = document.getElementById("descricaoCategoriaInput");
+
+    // Função para salvar no localStorage
+    function salvarCategorias() {
+      localStorage.setItem("categorias", JSON.stringify(categorias));
+    }
+
+    // Renderiza a lista de categorias
+    function renderizarCategorias() {
+      listaCategorias.innerHTML = "";
+
+      if (categorias.length === 0) {
+        const vazio = document.createElement("p");
+        vazio.textContent = "Nenhuma categoria cadastrada.";
+        vazio.classList.add("no-categories");
+        listaCategorias.appendChild(vazio);
+        return;
+      }
+
+      categorias.forEach((categoria, index) => {
+        const li = document.createElement("li");
+
+        const infoDiv = document.createElement("div");
+        infoDiv.classList.add("categoria-info");
+
+        const nomeStrong = document.createElement("strong");
+        nomeStrong.textContent = categoria.nome;
+        infoDiv.appendChild(nomeStrong);
+
+        const descSpan = document.createElement("span");
+        descSpan.textContent = categoria.descricao;
+        infoDiv.appendChild(descSpan);
+
+        li.appendChild(infoDiv);
+
+        const actionsDiv = document.createElement("div");
+        actionsDiv.classList.add("actions");
+
+        // Botão Editar
+        const btnEditar = document.createElement("button");
+        btnEditar.textContent = "Editar";
+        btnEditar.classList.add("edit-btn");
+        btnEditar.onclick = () => iniciarEdicao(index, li, infoDiv, btnEditar);
+        actionsDiv.appendChild(btnEditar);
+
+        // Botão Remover
+        const btnRemover = document.createElement("button");
+        btnRemover.textContent = "Remover";
+        btnRemover.onclick = () => removerCategoria(index);
+        actionsDiv.appendChild(btnRemover);
+
+        li.appendChild(actionsDiv);
+
+        listaCategorias.appendChild(li);
+      });
+    }
+
+    // Função para adicionar categoria nova
+    function adicionarCategoria() {
+      const nome = nomeCategoriaInput.value.trim();
+      const descricao = descricaoCategoriaInput.value.trim();
+
+      if (!nome) {
+        alert("Por favor, insira o nome da categoria.");
+        return;
+      }
+
+      if (!descricao) {
+        alert("Por favor, insira a descrição da categoria.");
+        return;
+      }
+
+      // Verifica duplicado pelo nome (case insensitive)
+      if (categorias.some(cat => cat.nome.toLowerCase() === nome.toLowerCase())) {
+        alert("Categoria já cadastrada.");
+        return;
+      }
+
+      categorias.push({ nome, descricao });
+      salvarCategorias();
+      renderizarCategorias();
+
+      alert("Categoria criada com sucesso");
+
+      nomeCategoriaInput.value = "";
+      descricaoCategoriaInput.value = "";
+    }
+
+    // Função para remover categoria
+    function removerCategoria(index) {
+      if (
+        confirm(`Tem certeza que deseja remover a categoria "${categorias[index].nome}"?`)
+      ) {
+        categorias.splice(index, 1);
+        salvarCategorias();
+        renderizarCategorias();
+      }
+    }
+
+    // Iniciar edição de categoria
+    function iniciarEdicao(index, li, infoDiv, btnEditar) {
+      // Oculta as infos e botão editar
+      infoDiv.style.display = "none";
+      btnEditar.style.display = "none";
+
+      // Cria inputs para edição
+      const inputNome = document.createElement("input");
+      inputNome.type = "text";
+      inputNome.value = categorias[index].nome;
+      inputNome.classList.add("edit-input");
+
+      const inputDesc = document.createElement("textarea");
+      inputDesc.value = categorias[index].descricao;
+      inputDesc.classList.add("edit-textarea");
+
+      // Insere inputs antes da infoDiv no li
+      li.insertBefore(inputNome, infoDiv);
+      li.insertBefore(inputDesc, infoDiv);
+
+      // Botões salvar e cancelar
+      const btnSalvar = document.createElement("button");
+      btnSalvar.textContent = "Salvar";
+      btnSalvar.classList.add("btn-custom");
+      btnSalvar.style.padding = "6px 12px";
+      btnSalvar.style.fontSize = "14px";
+
+      const btnCancelar = document.createElement("button");
+      btnCancelar.textContent = "Cancelar";
+      btnCancelar.classList.add("btn-custom");
+      btnCancelar.style.background = "#ccc";
+      btnCancelar.style.color = "#000";
+      btnCancelar.style.padding = "6px 12px";
+      btnCancelar.style.fontSize = "14px";
+      btnCancelar.style.marginLeft = "8px";
+
+      const actionsDiv = li.querySelector(".actions");
+      actionsDiv.style.display = "none";
+
+      li.appendChild(btnSalvar);
+      li.appendChild(btnCancelar);
+
+      inputNome.focus();
+
+      btnSalvar.onclick = () => {
+        const novoNome = inputNome.value.trim();
+        const novaDesc = inputDesc.value.trim();
+
+        if (!novoNome) {
+          alert("O nome da categoria não pode ficar vazio.");
+          inputNome.focus();
+          return;
+        }
+
+        if (!novaDesc) {
+          alert("A descrição da categoria não pode ficar vazia.");
+          inputDesc.focus();
+          return;
+        }
+
+        // Verifica duplicado (exceto o atual)
+        if (
+          categorias.some(
+            (cat, idx) => cat.nome.toLowerCase() === novoNome.toLowerCase() && idx !== index
+          )
+        ) {
+          alert("Já existe uma categoria com esse nome.");
+          inputNome.focus();
+          return;
+        }
+
+        categorias[index] = { nome: novoNome, descricao: novaDesc };
+        salvarCategorias();
+        renderizarCategorias();
+      };
+
+      btnCancelar.onclick = () => {
+        inputNome.remove();
+        inputDesc.remove();
+        btnSalvar.remove();
+        btnCancelar.remove();
+        infoDiv.style.display = "block";
+        btnEditar.style.display = "inline";
+        actionsDiv.style.display = "flex";
+      };
+    }
+
+    // Inicializa a renderização ao carregar a página
+    renderizarCategorias();
+  </script>
+</body>
+</html>
