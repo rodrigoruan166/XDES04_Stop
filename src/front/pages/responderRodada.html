@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Responder Rodada - Stop</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap");
+
+    body {
+      margin: 0;
+      font-family: "Fredoka", sans-serif;
+      background: url("https://i.postimg.cc/DzHNSmDC/background.jpg")
+        no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      z-index: -1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header nav a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .game-container {
+      display: flex;
+      width: 100%;
+      max-width: 900px;
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      padding: 25px;
+      flex: 1;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 28px;
+      text-shadow: 1px 1px 4px #000;
+      color: #ffc800;
+    }
+
+    .timer-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .timer {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #ffc800;
+      text-shadow: 0 0 10px rgba(255, 200, 0, 0.5);
+    }
+
+    .letter-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .letter {
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+      line-height: 80px;
+      font-size: 3em;
+      font-weight: bold;
+      background: #ffc800;
+      color: #000;
+      border-radius: 15px;
+      border: 4px solid #000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .category-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .category-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+
+    .category-name {
+      flex: 0 0 120px;
+      font-weight: bold;
+      color: #ffc800;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    .answer-input {
+      flex: 1;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+    }
+
+    .stop-btn-container {
+      text-align: center;
+    }
+
+    .btn-stop {
+      display: inline-block;
+      background: #ff4c4c;
+      color: #fff;
+      font-weight: bold;
+      font-size: 20px;
+      padding: 15px 50px;
+      border: 4px solid #000;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-stop:hover {
+      background: #ff6b6b;
+    }
+
+    .btn-stop:disabled {
+      background: #777;
+      cursor: not-allowed;
+    }
+
+    .players-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .player-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 15px;
+      min-width: 120px;
+      text-align: center;
+    }
+
+    .player-name {
+      font-weight: bold;
+      color: #ffc800;
+      margin-bottom: 5px;
+    }
+
+    .player-status {
+      font-size: 14px;
+    }
+
+    .player-ready {
+      color: #4cff4c;
+    }
+
+    .player-not-ready {
+      color: #ff4c4c;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="./home.html">
+      <img
+        src="https://i.postimg.cc/fbVMvxkD/upscalemedia-transformed.png"
+        alt="StopotS logo"
+        height="50"
+      />
+    </a>
+    <nav>
+      <a href="./home.html">Início</a>
+      <a href="#categoria.html">Categorias</a>
+      <a href="./perfil.html">Ver Perfil</a>
+      <a href="./login.html">Sair</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    <h1>RODADA ATUAL</h1>
+    
+    <div class="game-container">
+      <div class="card">
+        <div class="timer-container">
+          <div class="timer" id="timer">01:30</div>
+        </div>
+        
+        <div class="letter-container">
+          <div class="letter" id="current-letter">A</div>
+        </div>
+        
+        <div class="category-list" id="category-list">
+          <!-- As categorias e campos de resposta serão inseridas aqui -->
+        </div>
+        
+        <div class="stop-btn-container">
+          <button class="btn-stop" id="btn-stop" disabled>STOP!</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2>JOGADORES</h2>
+        <div class="players-container" id="players-container">
+          <!-- Os jogadores serão listados aqui -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Dados simulados (em um sistema real, viriam do backend)
+    const rodadaAtual = {
+      letra: 'B',
+      tempoTotal: 90, // segundos
+      categorias: [
+        { id: 1, nome: "País" },
+        { id: 2, nome: "Animal" },
+        { id: 3, nome: "Nome" },
+        { id: 4, nome: "Objeto" },
+        { id: 5, nome: "Comida" }
+      ],
+      jogadores: [
+        { id: 1, nome: "Jogador1", pronto: true },
+        { id: 2, nome: "Jogador2", pronto: false },
+        { id: 3, nome: "Você", pronto: true },
+        { id: 4, nome: "Jogador4", pronto: true }
+      ]
+    };
+
+    // Elementos DOM
+    const timerElement = document.getElementById('timer');
+    const letterElement = document.getElementById('current-letter');
+    const categoryListElement = document.getElementById('category-list');
+    const btnStop = document.getElementById('btn-stop');
+    const playersContainer = document.getElementById('players-container');
+
+    // Estado da rodada
+    let tempoRestante = rodadaAtual.tempoTotal;
+    let respostas = {};
+    let intervalo;
+
+    // Inicializar a tela
+    function initRodada() {
+      // Exibir letra atual
+      letterElement.textContent = rodadaAtual.letra;
+      
+      // Renderizar categorias
+      renderizarCategorias();
+      
+      // Renderizar jogadores
+      renderizarJogadores();
+      
+      // Iniciar contador
+      iniciarContador();
+    }
+
+    // Renderizar lista de categorias
+    function renderizarCategorias() {
+      categoryListElement.innerHTML = '';
+      
+      rodadaAtual.categorias.forEach(categoria => {
+        const item = document.createElement('div');
+        item.className = 'category-item';
+        
+        const nome = document.createElement('div');
+        nome.className = 'category-name';
+        nome.textContent = categoria.nome;
+        item.appendChild(nome);
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'answer-input';
+        input.placeholder = `Resposta para ${categoria.nome}`;
+        input.dataset.categoriaId = categoria.id;
+        
+        // Salvar resposta quando o usuário digitar
+        input.addEventListener('input', function() {
+          respostas[categoria.id] = this.value;
+          verificarRespostasCompletas();
+        });
+        
+        item.appendChild(input);
+        categoryListElement.appendChild(item);
+      });
+    }
+
+    // Renderizar lista de jogadores
+    function renderizarJogadores() {
+      playersContainer.innerHTML = '';
+      
+      rodadaAtual.jogadores.forEach(jogador => {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        
+        const nome = document.createElement('div');
+        nome.className = 'player-name';
+        nome.textContent = jogador.nome;
+        card.appendChild(nome);
+        
+        const status = document.createElement('div');
+        status.className = `player-status ${jogador.pronto ? 'player-ready' : 'player-not-ready'}`;
+        status.textContent = jogador.pronto ? 'PRONTO' : 'DIGITANDO...';
+        card.appendChild(status);
+        
+        playersContainer.appendChild(card);
+      });
+    }
+
+    // Iniciar contador regressivo
+    function iniciarContador() {
+      atualizarTempo();
+      
+      intervalo = setInterval(() => {
+        tempoRestante--;
+        
+        if (tempoRestante <= 0) {
+          clearInterval(intervalo);
+          finalizarRodada();
+        } else {
+          atualizarTempo();
+        }
+        
+        // Habilitar o botão STOP após metade do tempo (se todas as respostas estiverem preenchidas)
+        if (tempoRestante <= rodadaAtual.tempoTotal / 2) {
+          verificarRespostasCompletas();
+        }
+      }, 1000);
+    }
+
+    // Atualizar display do tempo
+    function atualizarTempo() {
+      const minutos = Math.floor(tempoRestante / 60);
+      const segundos = tempoRestante % 60;
+      timerElement.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+    }
+
+    // Verificar se todas as respostas foram preenchidas
+    function verificarRespostasCompletas() {
+      const todasPreenchidas = rodadaAtual.categorias.every(cat => 
+        respostas[cat.id] && respostas[cat.id].trim() !== ''
+      );
+      
+      // Habilitar o botão apenas após metade do tempo e com todas respostas preenchidas
+      const metadeTempoPassada = tempoRestante <= rodadaAtual.tempoTotal / 2;
+      btnStop.disabled = !(todasPreenchidas && metadeTempoPassada);
+    }
+
+    // Finalizar rodada e ir para validação
+    function finalizarRodada() {
+      clearInterval(intervalo);
+      
+      // Salvar respostas (em um sistema real, enviaria para o backend)
+      localStorage.setItem('respostasRodada', JSON.stringify(respostas));
+      
+      // Redirecionar para tela de validação
+      window.location.href = 'validar_respostas.html';
+    }
+
+    // Evento do botão STOP
+    btnStop.addEventListener('click', finalizarRodada);
+
+    // Inicializar a rodada quando a página carregar
+    window.addEventListener('DOMContentLoaded', initRodada);
+  </script>
+</body>
+</html>
