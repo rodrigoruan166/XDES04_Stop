@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Validar Respostas - Stop</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap");
+
+    body {
+      margin: 0;
+      font-family: "Fredoka", sans-serif;
+      background: url("https://i.postimg.cc/DzHNSmDC/background.jpg")
+        no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      z-index: -1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header nav a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .validation-container {
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 28px;
+      text-shadow: 1px 1px 4px #000;
+      color: #ffc800;
+    }
+
+    .current-category {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .category-name {
+      font-size: 2em;
+      font-weight: bold;
+      color: #ffc800;
+      text-shadow: 1px 1px 3px #000;
+      margin-bottom: 10px;
+    }
+
+    .letter-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .letter {
+      display: inline-block;
+      width: 70px;
+      height: 70px;
+      line-height: 70px;
+      font-size: 2.5em;
+      font-weight: bold;
+      background: #ffc800;
+      color: #000;
+      border-radius: 15px;
+      border: 4px solid #000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .timer-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .timer {
+      font-size: 2em;
+      font-weight: bold;
+      color: #ffc800;
+      text-shadow: 0 0 10px rgba(255, 200, 0, 0.5);
+    }
+
+    .answers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .answer-card {
+      background: rgba(76, 175, 80, 0.3); /* Verde para respostas válidas */
+      border-radius: 10px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .answer-card.invalid {
+      background: rgba(244, 67, 54, 0.3); /* Vermelho para respostas inválidas */
+    }
+
+    .answer-card.locked {
+      cursor: default;
+      opacity: 0.8;
+    }
+
+    .answer-text {
+      font-size: 1.3em;
+      font-weight: 500;
+    }
+
+    .validation-status {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 0.8em;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .status-valid {
+      color: #4caf50;
+    }
+
+    .status-invalid {
+      color: #f44336;
+    }
+
+    .btn-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .btn-confirm {
+      display: inline-block;
+      background: #4caf50;
+      color: #fff;
+      font-weight: bold;
+      font-size: 18px;
+      padding: 12px 40px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-decoration: none;
+    }
+
+    .btn-confirm:hover {
+      background: #66bb6a;
+    }
+
+    .btn-confirm:disabled {
+      background: #777;
+      cursor: not-allowed;
+    }
+
+    .progress-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 10px;
+    }
+
+    .progress-dot {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transition: background 0.3s;
+    }
+
+    .progress-dot.active {
+      background: #ffc800;
+    }
+
+    .progress-dot.completed {
+      background: #4caf50;
+    }
+
+    .players-confirmed {
+      margin-top: 15px;
+      font-size: 1.1em;
+      color: #ffc800;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="./home.html">
+      <img
+        src="https://i.postimg.cc/fbVMvxkD/upscalemedia-transformed.png"
+        alt="StopotS logo"
+        height="50"
+      />
+    </a>
+    <nav>
+      <a href="./home.html">Início</a>
+      <a href="#categoria.html">Categorias</a>
+      <a href="./perfil.html">Ver Perfil</a>
+      <a href="./login.html">Sair</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    <h1>VALIDAR RESPOSTAS</h1>
+    
+    <div class="validation-container">
+      <div class="card">
+        <div class="current-category">
+          <div class="category-name" id="current-category">País</div>
+          <div class="letter-container">
+            <div class="letter" id="current-letter">B</div>
+          </div>
+        </div>
+        
+        <div class="timer-container">
+          <div class="timer" id="timer">30</div>
+        </div>
+        
+        <div class="answers-grid" id="answers-container">
+          <!-- As respostas serão renderizadas aqui -->
+        </div>
+        
+        <div class="players-confirmed" id="players-confirmed">
+          0/4 jogadores confirmaram
+        </div>
+        
+        <div class="btn-container">
+          <button class="btn-confirm" id="btn-confirm">CONFIRMAR VALIDAÇÕES</button>
+        </div>
+        
+        <div class="progress-container" id="progress-container">
+          <!-- Os pontos de progresso serão gerados dinamicamente -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Dados simulados (em um sistema real, viriam do backend)
+    const rodadaAtual = {
+      letra: 'B',
+      categorias: [
+        { id: 1, nome: "País" },
+        { id: 2, nome: "Animal" },
+        { id: 3, nome: "Nome" },
+        { id: 4, nome: "Objeto" },
+        { id: 5, nome: "Comida" }
+      ],
+      respostas: [
+        { id: 1, categoriaId: 1, texto: "Brasil" },
+        { id: 2, categoriaId: 1, texto: "Bélgica" },
+        { id: 3, categoriaId: 1, texto: "Bolívia" },
+        { id: 4, categoriaId: 1, texto: "Butão" },
+        { id: 5, categoriaId: 2, texto: "Baleia" },
+        { id: 6, categoriaId: 2, texto: "Borboleta" },
+        { id: 7, categoriaId: 2, texto: "Beija-flor" },
+        { id: 8, categoriaId: 2, texto: "Búfalo" },
+        { id: 9, categoriaId: 3, texto: "Bruno" },
+        { id: 10, categoriaId: 3, texto: "Beatriz" },
+        { id: 11, categoriaId: 3, texto: "Bianca" },
+        { id: 12, categoriaId: 3, texto: "Bernardo" },
+        { id: 13, categoriaId: 4, texto: "Bola" },
+        { id: 14, categoriaId: 4, texto: "Balanço" },
+        { id: 15, categoriaId: 4, texto: "Bicicleta" },
+        { id: 16, categoriaId: 4, texto: "Balança" },
+        { id: 17, categoriaId: 5, texto: "Bolo" },
+        { id: 18, categoriaId: 5, texto: "Brócolis" },
+        { id: 19, categoriaId: 5, texto: "Biscoito" },
+        { id: 20, categoriaId: 5, texto: "Bife" }
+      ],
+      jogadores: [
+        { id: 1, nome: "Jogador1" },
+        { id: 2, nome: "Jogador2" },
+        { id: 3, nome: "Jogador3" },
+        { id: 4, nome: "Você" }
+      ]
+    };
+
+    // Estado da validação
+    let estado = {
+      categoriaIndex: 0,
+      tempoRestante: 30,
+      intervalo: null,
+      validacoes: {},
+      confirmacoes: {},
+      todasConfirmadas: false,
+      respostasBloqueadas: false // Nova flag para controlar bloqueio
+    };
+
+    // Elementos DOM
+    const categoryNameElement = document.getElementById('current-category');
+    const letterElement = document.getElementById('current-letter');
+    const timerElement = document.getElementById('timer');
+    const answersContainer = document.getElementById('answers-container');
+    const btnConfirm = document.getElementById('btn-confirm');
+    const playersConfirmedElement = document.getElementById('players-confirmed');
+    const progressContainer = document.getElementById('progress-container');
+
+    // Inicializar a tela
+    function initValidacao() {
+      // Exibir letra atual
+      letterElement.textContent = rodadaAtual.letra;
+      
+      // Inicializar progresso
+      renderizarProgresso();
+      
+      // Iniciar a primeira categoria
+      iniciarCategoria();
+    }
+
+    // Renderizar pontos de progresso
+    function renderizarProgresso() {
+      progressContainer.innerHTML = '';
+      
+      rodadaAtual.categorias.forEach((categoria, index) => {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot';
+        if (index === estado.categoriaIndex) dot.classList.add('active');
+        progressContainer.appendChild(dot);
+      });
+    }
+
+    // Atualizar pontos de progresso
+    function atualizarProgresso() {
+      const dots = progressContainer.querySelectorAll('.progress-dot');
+      dots.forEach((dot, index) => {
+        dot.classList.remove('active', 'completed');
+        if (index === estado.categoriaIndex) {
+          dot.classList.add('active');
+        } else if (index < estado.categoriaIndex) {
+          dot.classList.add('completed');
+        }
+      });
+    }
+
+    // Iniciar validação para a categoria atual
+    function iniciarCategoria() {
+      // Resetar estado
+      estado.tempoRestante = 30;
+      estado.validacoes = {};
+      estado.confirmacoes = {};
+      estado.todasConfirmadas = false;
+      estado.respostasBloqueadas = false; // Resetar flag de bloqueio
+      
+      // Atualizar elementos de UI
+      atualizarUI();
+      
+      // Iniciar contador
+      iniciarContador();
+      
+      // Renderizar respostas para a categoria atual
+      renderizarRespostas();
+    }
+
+    // Atualizar elementos de UI
+    function atualizarUI() {
+      const categoriaAtual = rodadaAtual.categorias[estado.categoriaIndex];
+      
+      // Atualizar nome da categoria
+      categoryNameElement.textContent = categoriaAtual.nome;
+      
+      // Atualizar timer
+      timerElement.textContent = estado.tempoRestante;
+      
+      // Atualizar botão de confirmação
+      btnConfirm.disabled = false;
+      btnConfirm.textContent = 'CONFIRMAR VALIDAÇÕES';
+      
+      // Atualizar contador de jogadores confirmados
+      atualizarContadorConfirmacoes();
+      
+      // Atualizar progresso
+      atualizarProgresso();
+    }
+
+    // Renderizar respostas para a categoria atual
+    function renderizarRespostas() {
+      answersContainer.innerHTML = '';
+      
+      const categoriaId = rodadaAtual.categorias[estado.categoriaIndex].id;
+      const respostasCategoria = rodadaAtual.respostas.filter(
+        r => r.categoriaId === categoriaId
+      );
+      
+      respostasCategoria.forEach(resposta => {
+        // Inicializar como válida
+        estado.validacoes[resposta.id] = true;
+        
+        const answerCard = document.createElement('div');
+        answerCard.className = 'answer-card';
+        answerCard.dataset.respostaId = resposta.id;
+        
+        const answerText = document.createElement('div');
+        answerText.className = 'answer-text';
+        answerText.textContent = resposta.texto;
+        answerCard.appendChild(answerText);
+        
+        const status = document.createElement('div');
+        status.className = 'validation-status status-valid';
+        status.textContent = 'VÁLIDA';
+        answerCard.appendChild(status);
+        
+        // Evento de clique para alternar validação
+        answerCard.addEventListener('click', function() {
+          // Não permitir alterações se as respostas estiverem bloqueadas
+          if (estado.respostasBloqueadas) return;
+          
+          const respostaId = this.dataset.respostaId;
+          
+          // Alternar estado de validação
+          estado.validacoes[respostaId] = !estado.validacoes[respostaId];
+          
+          // Atualizar UI
+          if (estado.validacoes[respostaId]) {
+            this.classList.remove('invalid');
+            status.textContent = 'VÁLIDA';
+            status.className = 'validation-status status-valid';
+          } else {
+            this.classList.add('invalid');
+            status.textContent = 'INVÁLIDA';
+            status.className = 'validation-status status-invalid';
+          }
+        });
+        
+        answersContainer.appendChild(answerCard);
+      });
+    }
+
+    // Iniciar contador regressivo
+    function iniciarContador() {
+      // Limpar qualquer intervalo existente
+      if (estado.intervalo) clearInterval(estado.intervalo);
+      
+      estado.intervalo = setInterval(() => {
+        estado.tempoRestante--;
+        timerElement.textContent = estado.tempoRestante;
+        
+        if (estado.tempoRestante <= 0) {
+          clearInterval(estado.intervalo);
+          avancarCategoria();
+        }
+        
+        // Verificar se todos confirmaram
+        verificarTodasConfirmacoes();
+      }, 1000);
+    }
+
+    // Atualizar contador de confirmações
+    function atualizarContadorConfirmacoes() {
+      const totalJogadores = rodadaAtual.jogadores.length;
+      const confirmados = Object.keys(estado.confirmacoes).length;
+      playersConfirmedElement.textContent = `${confirmados}/${totalJogadores} jogadores confirmaram`;
+    }
+
+    // Verificar se todos os jogadores confirmaram
+    function verificarTodasConfirmacoes() {
+      const totalJogadores = rodadaAtual.jogadores.length;
+      const confirmados = Object.keys(estado.confirmacoes).length;
+      
+      if (confirmados === totalJogadores && !estado.todasConfirmadas) {
+        estado.todasConfirmadas = true;
+        avancarCategoria();
+      }
+    }
+
+    // Avançar para a próxima categoria
+    function avancarCategoria() {
+      // Limpar intervalo
+      clearInterval(estado.intervalo);
+      
+      // Salvar validações (em sistema real, enviar para backend)
+      salvarValidacoesCategoria();
+      
+      // Verificar se há mais categorias
+      if (estado.categoriaIndex < rodadaAtual.categorias.length - 1) {
+        estado.categoriaIndex++;
+        iniciarCategoria();
+      } else {
+        // Todas as categorias foram validadas
+        finalizarValidacao();
+      }
+    }
+
+    // Salvar validações da categoria atual
+    function salvarValidacoesCategoria() {
+      const categoriaId = rodadaAtual.categorias[estado.categoriaIndex].id;
+      console.log(`Validações salvas para categoria ${categoriaId}:`, estado.validacoes);
+      // Em sistema real: enviar para backend
+    }
+
+    // Finalizar todo o processo de validação
+    function finalizarValidacao() {
+      alert('Todas as categorias foram validadas! Em sistema real, seguiria para a tela de resultados.');
+      // window.location.href = 'resultados.html';
+    }
+
+    // Confirmar validações do jogador atual e bloquear edições
+    function confirmarValidacoes() {
+      // Marcar jogador atual como confirmado
+      const jogadorAtualId = 4; // ID do jogador atual (em sistema real, viria da sessão)
+      estado.confirmacoes[jogadorAtualId] = true;
+      
+      // Bloquear edição das respostas
+      estado.respostasBloqueadas = true;
+      
+      // Adicionar classe de bloqueio visual a todas as respostas
+      document.querySelectorAll('.answer-card').forEach(card => {
+        card.classList.add('locked');
+      });
+      
+      // Atualizar UI
+      atualizarContadorConfirmacoes();
+      btnConfirm.disabled = true;
+      btnConfirm.textContent = 'VALIDADO!';
+      
+      // Verificar se todos confirmaram
+      verificarTodasConfirmacoes();
+    }
+
+    // Evento do botão de confirmação
+    btnConfirm.addEventListener('click', confirmarValidacoes);
+
+    // Inicializar a validação quando a página carregar
+    window.addEventListener('DOMContentLoaded', initValidacao);
+  </script>
+</body>
+</html>
