@@ -256,17 +256,34 @@
   </section>
 
   <script>
-    // Dados simulados (em um sistema real, viriam do backend)
+    // Recuperar categorias do localStorage
+    const categoriasSalvas = JSON.parse(localStorage.getItem("categorias")) || [];
+    
+    // Gerar IDs para as categorias (se não existirem)
+    const categoriasComIds = categoriasSalvas.map((cat, index) => ({
+      id: index + 1, // Usar índice +1 como ID temporário
+      nome: cat.nome
+    }));
+    
+    // Se não houver categorias cadastradas, usar um padrão
+    const categoriasPadrao = [
+      { id: 1, nome: "País" },
+      { id: 2, nome: "Animal" },
+      { id: 3, nome: "Nome" },
+      { id: 4, nome: "Objeto" },
+      { id: 5, nome: "Comida" }
+    ];
+    
+    // Usar categorias do usuário ou padrão
+    const categoriasParaRodada = categoriasComIds.length > 0 
+      ? categoriasComIds 
+      : categoriasPadrao;
+
+    // Dados da rodada (agora usando as categorias do usuário)
     const rodadaAtual = {
       letra: 'B',
       tempoTotal: 90, // segundos
-      categorias: [
-        { id: 1, nome: "País" },
-        { id: 2, nome: "Animal" },
-        { id: 3, nome: "Nome" },
-        { id: 4, nome: "Objeto" },
-        { id: 5, nome: "Comida" }
-      ],
+      categorias: categoriasParaRodada,
       jogadores: [
         { id: 1, nome: "Jogador1", pronto: true },
         { id: 2, nome: "Jogador2", pronto: false },
@@ -397,8 +414,14 @@
     function finalizarRodada() {
       clearInterval(intervalo);
       
-      // Salvar respostas (em um sistema real, enviaria para o backend)
-      localStorage.setItem('respostasRodada', JSON.stringify(respostas));
+      // Salvar respostas com informações da rodada
+      const dadosRodada = {
+        letra: rodadaAtual.letra,
+        respostas: respostas,
+        categorias: rodadaAtual.categorias
+      };
+      
+      localStorage.setItem('respostasRodada', JSON.stringify(dadosRodada));
       
       // Redirecionar para tela de validação
       window.location.href = 'validar_respostas.html';
