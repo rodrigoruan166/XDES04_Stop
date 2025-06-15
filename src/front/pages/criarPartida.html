@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Criar Partida - Stop</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap");
+
+    body {
+      margin: 0;
+      font-family: "Fredoka", sans-serif;
+      background: url("https://i.postimg.cc/DzHNSmDC/background.jpg")
+        no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      z-index: -1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header nav a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .main {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-shadow: 1px 1px 4px #000;
+      color: #ffc800;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #ffc800;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      background: #eee;
+      color: #333;
+      box-sizing: border-box;
+    }
+
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+    }
+
+    .checkbox-item label {
+      display: flex;
+      align-items: center;
+      font-weight: normal;
+      color: #fff;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    .user-category {
+      border-left: 3px solid #ffc800;
+      padding-left: 8px;
+    }
+
+    .letters-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: center;
+    }
+
+    .letter-checkbox {
+      display: none;
+    }
+
+    .letter-label {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .letter-checkbox:checked + .letter-label {
+      background: #ff4c4c;
+      transform: scale(1.1);
+    }
+
+    .btn-custom {
+      display: inline-block;
+      background: #ffc800;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 12px 24px;
+      border: 4px solid #000;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-decoration: none;
+      margin: 5px 3px 0 3px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .btn-custom:hover {
+      background: #ffe05f;
+    }
+
+    .btn-custom:disabled {
+      background: #777;
+      cursor: not-allowed;
+    }
+
+    .room-info {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 15px;
+      margin-top: 30px;
+      display: none;
+    }
+
+    .room-code {
+      font-size: 2em;
+      font-weight: bold;
+      color: #ffc800;
+      margin: 15px 0;
+      letter-spacing: 3px;
+    }
+
+    .share-options {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+
+    .share-input {
+      flex: 1;
+      max-width: 400px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      background: #eee;
+      color: #333;
+    }
+
+    .copy-btn {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="./home.html">
+      <img
+        src="https://i.postimg.cc/fbVMvxkD/upscalemedia-transformed.png"
+        alt="StopotS logo"
+        height="50"
+      />
+    </a>
+    <nav>
+      <a href="./home.html">Início</a>
+      <a href="#categoria.html">Categorias</a>
+      <a href="./perfil.html">Ver Perfil</a>
+      <a href="./login.html">Sair</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    <div class="card">
+      <h1>CRIAR PARTIDA</h1>
+      
+      <div id="config-form">
+        <div class="form-group">
+          <label for="room-name">Nome da Sala</label>
+          <input type="text" id="room-name" placeholder="Nome da sua sala">
+        </div>
+        
+        <div class="form-group">
+          <label>Selecione as Categorias</label>
+          <div class="checkbox-group" id="categories-container">
+            <!-- Categorias serão carregadas aqui -->
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="max-players">Número Máximo de Jogadores</label>
+          <input type="number" id="max-players" min="2" max="20" value="8">
+        </div>
+        
+        <div class="form-group">
+          <label for="rounds">Número de Rodadas</label>
+          <input type="number" id="rounds" min="1" max="20" value="5">
+        </div>
+        
+        <div class="form-group">
+          <label for="time-per-round">Tempo por Rodada (segundos)</label>
+          <input type="number" id="time-per-round" min="30" max="300" value="90">
+        </div>
+        
+        <div class="form-group">
+          <label for="privacy">Privacidade da Sala</label>
+          <select id="privacy">
+            <option value="public">Pública (qualquer um pode entrar)</option>
+            <option value="private">Privada (apenas com código)</option>
+          </select>
+        </div>
+        
+        <div class="form-group" id="password-group" style="display: none;">
+          <label for="password">Senha da Sala</label>
+          <input type="text" id="password" placeholder="Digite uma senha">
+        </div>
+        
+        <div class="form-group">
+          <label>Letras Indesejadas (opcional)</label>
+          <div class="letters-container">
+            <!-- Letras de A a Z -->
+          </div>
+        </div>
+        
+        <button class="btn-custom" onclick="criarPartida()">CRIAR PARTIDA</button>
+      </div>
+      
+      <div id="room-info" class="room-info">
+        <h2>SALA CRIADA COM SUCESSO!</h2>
+        <p>Compartilhe este código com seus amigos:</p>
+        <div class="room-code" id="room-code">ABCD12</div>
+        
+        <div class="share-options">
+          <input type="text" class="share-input" id="room-link" readonly>
+          <button class="copy-btn" onclick="copiarLink()">Copiar Link</button>
+        </div>
+        
+        <button class="btn-custom" onclick="irParaSala()">IR PARA SALA DE ESPERA</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Recuperar categorias do localStorage
+    const categoriasSalvas = JSON.parse(localStorage.getItem("categorias")) || [];
+    
+    // Categorias padrão do sistema
+    const categoriasPadrao = [
+      { nome: "País", descricao: "Nome de países", origem: "sistema" },
+      { nome: "Animal", descricao: "Animais de todos os tipos", origem: "sistema" },
+      { nome: "Nome", descricao: "Nomes próprios", origem: "sistema" },
+      { nome: "Objeto", descricao: "Objetos do cotidiano", origem: "sistema" },
+      { nome: "Comida", descricao: "Pratos e alimentos", origem: "sistema" }
+    ];
+    
+    // Combinar categorias do usuário e padrão
+    const todasCategorias = [
+      ...categoriasSalvas.map(cat => ({...cat, origem: "usuário"})),
+      ...categoriasPadrao
+    ];
+    
+    // Elementos DOM
+    const categoriesContainer = document.getElementById('categories-container');
+    const lettersContainer = document.querySelector('.letters-container');
+    const privacySelect = document.getElementById('privacy');
+    const passwordGroup = document.getElementById('password-group');
+    const configForm = document.getElementById('config-form');
+    const roomInfo = document.getElementById('room-info');
+    const roomCodeElement = document.getElementById('room-code');
+    const roomLinkElement = document.getElementById('room-link');
+    
+    // Carregar categorias na interface
+    function carregarCategorias() {
+      categoriesContainer.innerHTML = '';
+      
+      todasCategorias.forEach((categoria, index) => {
+        const checkboxItem = document.createElement('div');
+        checkboxItem.className = 'checkbox-item';
+        if (categoria.origem === "usuário") {
+          checkboxItem.classList.add('user-category');
+        }
+        
+        checkboxItem.innerHTML = `
+          <label>
+            <input type="checkbox" name="categoria" value="${index}" checked>
+            ${categoria.nome}
+            ${categoria.origem === "usuário" ? '<span style="color:#ffc800;font-size:0.8em;"> (sua)</span>' : ''}
+          </label>
+        `;
+        
+        categoriesContainer.appendChild(checkboxItem);
+      });
+    }
+    
+    // Carregar letras (A-Z)
+    function carregarLetras() {
+      lettersContainer.innerHTML = '';
+      
+      for (let i = 65; i <= 90; i++) {
+        const letra = String.fromCharCode(i);
+        
+        const letterDiv = document.createElement('div');
+        letterDiv.innerHTML = `
+          <input type="checkbox" class="letter-checkbox" id="letter-${letra}" name="letra" value="${letra}">
+          <label for="letter-${letra}" class="letter-label">${letra}</label>
+        `;
+        
+        lettersContainer.appendChild(letterDiv);
+      }
+    }
+    
+    // Mostrar/ocultar campo de senha conforme o tipo de sala
+    privacySelect.addEventListener('change', function() {
+      passwordGroup.style.display = this.value === 'private' ? 'block' : 'none';
+    });
+    
+    // Criar a partida
+    function criarPartida() {
+      // Coletar configurações
+      const roomName = document.getElementById('room-name').value || "Sala Sem Nome";
+      const maxPlayers = document.getElementById('max-players').value;
+      const rounds = document.getElementById('rounds').value;
+      const timePerRound = document.getElementById('time-per-round').value;
+      const isPrivate = document.getElementById('privacy').value === 'private';
+      const password = isPrivate ? document.getElementById('password').value : '';
+      
+      // Coletar categorias selecionadas
+      const selectedCategories = [];
+      document.querySelectorAll('input[name="categoria"]:checked').forEach(checkbox => {
+        const index = parseInt(checkbox.value);
+        selectedCategories.push(todasCategorias[index]);
+      });
+      
+      // Coletar letras indesejadas
+      const unwantedLetters = [];
+      document.querySelectorAll('input[name="letra"]:checked').forEach(checkbox => {
+        unwantedLetters.push(checkbox.value);
+      });
+      
+      // Gerar código único para a sala
+      const roomCode = gerarCodigoSala();
+      
+      // Criar objeto da partida
+      const partida = {
+        id: Date.now(), // ID único
+        nome: roomName,
+        codigo: roomCode,
+        maxJogadores: maxPlayers,
+        rodadas: rounds,
+        tempoPorRodada: timePerRound,
+        privada: isPrivate,
+        senha: password,
+        categorias: selectedCategories,
+        letrasIndesejadas: unwantedLetters,
+        jogadores: [], // Será preenchido quando jogadores entrarem
+        dono: "Você" // Em sistema real, seria o ID do usuário
+      };
+      
+      // Salvar no localStorage (simulação do banco)
+      const partidas = JSON.parse(localStorage.getItem('partidas')) || [];
+      partidas.push(partida);
+      localStorage.setItem('partidas', JSON.stringify(partidas));
+      
+      // Salvar a partida atual
+      localStorage.setItem('partidaAtual', JSON.stringify(partida));
+      
+      // Mostrar informações da sala
+      roomCodeElement.textContent = roomCode;
+      roomLinkElement.value = `${window.location.origin}/entrarPartida.html?codigo=${roomCode}`;
+      configForm.style.display = 'none';
+      roomInfo.style.display = 'block';
+    }
+    
+    // Gerar código aleatório para a sala
+    function gerarCodigoSala() {
+      const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let codigo = '';
+      for (let i = 0; i < 6; i++) {
+        codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+      }
+      return codigo;
+    }
+    
+    // Copiar link para área de transferência
+    function copiarLink() {
+      roomLinkElement.select();
+      document.execCommand('copy');
+      alert('Link copiado para a área de transferência!');
+    }
+    
+    // Redirecionar para sala de espera
+    function irParaSala() {
+      window.location.href = 'salaEspera.html';
+    }
+    
+    // Inicializar a página
+    window.addEventListener('DOMContentLoaded', () => {
+      carregarCategorias();
+      carregarLetras();
+    });
+  </script>
+</body>
+</html>
