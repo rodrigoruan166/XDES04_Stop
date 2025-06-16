@@ -265,7 +265,6 @@
       <a href="./login.html">Sair</a>
     </nav>
   </header>
-
   <section class="main">
     <h1>VALIDAR RESPOSTAS</h1>
     
@@ -287,7 +286,7 @@
         </div>
         
         <div class="players-confirmed" id="players-confirmed">
-          Jogadores que validaram: 
+          Jogadores que validaram esta categoria: 
           <span class="confirmation-count" id="confirmed-count">0</span>
           / 
           <span class="confirmation-count" id="total-players">0</span>
@@ -333,7 +332,7 @@
       tempoRestante: 30,
       intervalo: null,
       respostasBloqueadas: false,
-      confirmacoes: {}, // Rastreia confirmações por categoria
+      confirmacoes: {}, // Armazenará confirmações por categoria
       validacoes: {}    // Rastreia validações de respostas
     };
 
@@ -381,8 +380,9 @@
       estado.tempoRestante = 30;
       estado.validacoes = {};
       estado.respostasBloqueadas = false;
-      estado.confirmacoes = {}; // Limpar confirmações para nova categoria
-      confirmedCountElement.textContent = "0";
+      
+      // Inicializar confirmações para esta categoria
+      estado.confirmacoes[estado.categoriaIndex] = [];
       
       // Atualizar elementos de UI
       atualizarUI();
@@ -392,6 +392,9 @@
       
       // Renderizar respostas para a categoria atual
       renderizarRespostas();
+      
+      // Atualizar contagem de confirmações
+      atualizarContagemConfirmacoes();
       
       // Simular confirmação de outros jogadores
       simularConfirmacoes();
@@ -494,29 +497,36 @@
       }, 1000);
     }
 
-    // Simular confirmação de outros jogadores
+    // Simular confirmação de outros jogadores para a categoria atual
     function simularConfirmacoes() {
       const totalJogadores = partidaAtual.jogadores.length;
+      const categoriaAtualIndex = estado.categoriaIndex;
       
       // Gerar tempos aleatórios para confirmação dos outros jogadores
       for (let i = 1; i < totalJogadores; i++) {
         const tempoAleatorio = Math.floor(Math.random() * 15000) + 5000; // 5-20 segundos
         setTimeout(() => {
+          // Só processar se ainda estivermos na mesma categoria
+          if (estado.categoriaIndex !== categoriaAtualIndex) return;
+          
           // Gerar ID fictício de jogador
           const jogadorId = `jogador-${i}`;
           
-          // Marcar como confirmado
-          if (!estado.confirmacoes[jogadorId]) {
-            estado.confirmacoes[jogadorId] = true;
+          // Adicionar à lista de confirmações desta categoria
+          if (!estado.confirmacoes[categoriaAtualIndex].includes(jogadorId)) {
+            estado.confirmacoes[categoriaAtualIndex].push(jogadorId);
             atualizarContagemConfirmacoes();
           }
         }, tempoAleatorio);
       }
     }
 
-    // Atualizar contagem de confirmações
+    // Atualizar contagem de confirmações para a categoria atual
     function atualizarContagemConfirmacoes() {
-      const totalConfirmados = Object.keys(estado.confirmacoes).length;
+      const categoriaAtualIndex = estado.categoriaIndex;
+      const confirmacoesCategoriaAtual = estado.confirmacoes[categoriaAtualIndex] || [];
+      const totalConfirmados = confirmacoesCategoriaAtual.length;
+      
       confirmedCountElement.textContent = totalConfirmados;
       
       // Verificar se todos confirmaram
@@ -557,11 +567,15 @@
       // window.location.href = 'resultados.html';
     }
 
-    // Confirmar validações do jogador atual
+    // Confirmar validações do jogador atual para a categoria atual
     function confirmarValidacoes() {
-      // Marcar jogador atual como confirmado
       const jogadorId = dadosRodada.jogadorId;
-      estado.confirmacoes[jogadorId] = true;
+      const categoriaAtualIndex = estado.categoriaIndex;
+      
+      // Adicionar jogador às confirmações da categoria atual
+      if (!estado.confirmacoes[categoriaAtualIndex].includes(jogadorId)) {
+        estado.confirmacoes[categoriaAtualIndex].push(jogadorId);
+      }
       
       // Bloquear edição das respostas
       estado.respostasBloqueadas = true;
@@ -577,8 +591,6 @@
       
       // Atualizar contagem
       atualizarContagemConfirmacoes();
-      
-      // Em sistema real: enviar confirmação para o backend
     }
 
     // Evento do botão de confirmação
