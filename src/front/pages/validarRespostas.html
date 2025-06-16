@@ -233,6 +233,20 @@
       font-size: 1.1em;
       color: #ffc800;
     }
+
+    .players-confirmed {
+      margin-top: 15px;
+      font-size: 1.1em;
+      color: #ffc800;
+      font-weight: bold;
+    }
+
+    .confirmation-count {
+      font-size: 1.3em;
+      color: #4caf50;
+      display: inline-block;
+      margin: 0 5px;
+    }
   </style>
 </head>
 <body>
@@ -273,7 +287,10 @@
         </div>
         
         <div class="players-confirmed" id="players-confirmed">
-          0/4 jogadores confirmaram
+          Jogadores que validaram: 
+          <span class="confirmation-count" id="confirmed-count">0</span>
+          / 
+          <span class="confirmation-count" id="total-players">0</span>
         </div>
         
         <div class="btn-container">
@@ -288,55 +305,36 @@
   </section>
 
   <script>
-    // Dados simulados (em um sistema real, viriam do backend)
-    const rodadaAtual = {
-      letra: 'B',
-      categorias: [
-        { id: 1, nome: "País" },
-        { id: 2, nome: "Animal" },
-        { id: 3, nome: "Nome" },
-        { id: 4, nome: "Objeto" },
-        { id: 5, nome: "Comida" }
-      ],
-      respostas: [
-        { id: 1, categoriaId: 1, texto: "Brasil" },
-        { id: 2, categoriaId: 1, texto: "Bélgica" },
-        { id: 3, categoriaId: 1, texto: "Bolívia" },
-        { id: 4, categoriaId: 1, texto: "Butão" },
-        { id: 5, categoriaId: 2, texto: "Baleia" },
-        { id: 6, categoriaId: 2, texto: "Borboleta" },
-        { id: 7, categoriaId: 2, texto: "Beija-flor" },
-        { id: 8, categoriaId: 2, texto: "Búfalo" },
-        { id: 9, categoriaId: 3, texto: "Bruno" },
-        { id: 10, categoriaId: 3, texto: "Beatriz" },
-        { id: 11, categoriaId: 3, texto: "Bianca" },
-        { id: 12, categoriaId: 3, texto: "Bernardo" },
-        { id: 13, categoriaId: 4, texto: "Bola" },
-        { id: 14, categoriaId: 4, texto: "Balanço" },
-        { id: 15, categoriaId: 4, texto: "Bicicleta" },
-        { id: 16, categoriaId: 4, texto: "Balança" },
-        { id: 17, categoriaId: 5, texto: "Bolo" },
-        { id: 18, categoriaId: 5, texto: "Brócolis" },
-        { id: 19, categoriaId: 5, texto: "Biscoito" },
-        { id: 20, categoriaId: 5, texto: "Bife" }
-      ],
-      jogadores: [
-        { id: 1, nome: "Jogador1" },
-        { id: 2, nome: "Jogador2" },
-        { id: 3, nome: "Jogador3" },
-        { id: 4, nome: "Você" }
-      ]
-    };
-
-    // Estado da validação
+    // Recuperar respostas do localStorage
+    const dadosRodada = JSON.parse(localStorage.getItem('respostasRodada'));
+    
+    // Se não houver dados, redirecionar
+    if (!dadosRodada) {
+      alert('Dados da rodada não encontrados!');
+      window.location.href = 'home.html';
+    }
+    
+    // Recuperar partida atual
+    const partidaAtual = JSON.parse(localStorage.getItem('partidaAtual'));
+    
+    // Recuperar respostas de outros jogadores (em sistema real, viria do banco)
+    // Para demonstração, vamos simular com base nas respostas do usuário atual
+    const todasRespostas = [{
+      jogador: { 
+        id: dadosRodada.jogadorId,
+        nome: "Você"
+      },
+      respostas: dadosRodada.respostas
+    }];
+    
+    // Estado de validação
     let estado = {
       categoriaIndex: 0,
       tempoRestante: 30,
       intervalo: null,
-      validacoes: {},
-      confirmacoes: {},
-      todasConfirmadas: false,
-      respostasBloqueadas: false // Nova flag para controlar bloqueio
+      respostasBloqueadas: false,
+      confirmacoes: {}, // Rastreia confirmações por categoria
+      validacoes: {}    // Rastreia validações de respostas
     };
 
     // Elementos DOM
@@ -345,13 +343,18 @@
     const timerElement = document.getElementById('timer');
     const answersContainer = document.getElementById('answers-container');
     const btnConfirm = document.getElementById('btn-confirm');
-    const playersConfirmedElement = document.getElementById('players-confirmed');
+    const confirmedCountElement = document.getElementById('confirmed-count');
+    const totalPlayersElement = document.getElementById('total-players');
     const progressContainer = document.getElementById('progress-container');
-
+    
     // Inicializar a tela
     function initValidacao() {
       // Exibir letra atual
-      letterElement.textContent = rodadaAtual.letra;
+      letterElement.textContent = dadosRodada.letra;
+      
+      // Definir total de jogadores
+      const totalJogadores = partidaAtual.jogadores.length;
+      totalPlayersElement.textContent = totalJogadores;
       
       // Inicializar progresso
       renderizarProgresso();
@@ -364,7 +367,7 @@
     function renderizarProgresso() {
       progressContainer.innerHTML = '';
       
-      rodadaAtual.categorias.forEach((categoria, index) => {
+      partidaAtual.categorias.forEach((categoria, index) => {
         const dot = document.createElement('div');
         dot.className = 'progress-dot';
         if (index === estado.categoriaIndex) dot.classList.add('active');
@@ -372,6 +375,46 @@
       });
     }
 
+    // Iniciar validação para a categoria atual
+    function iniciarCategoria() {
+      // Resetar estado
+      estado.tempoRestante = 30;
+      estado.validacoes = {};
+      estado.respostasBloqueadas = false;
+      estado.confirmacoes = {}; // Limpar confirmações para nova categoria
+      confirmedCountElement.textContent = "0";
+      
+      // Atualizar elementos de UI
+      atualizarUI();
+      
+      // Iniciar contador
+      iniciarContador();
+      
+      // Renderizar respostas para a categoria atual
+      renderizarRespostas();
+      
+      // Simular confirmação de outros jogadores
+      simularConfirmacoes();
+    }
+
+    // Atualizar elementos de UI
+    function atualizarUI() {
+      const categoriaAtual = partidaAtual.categorias[estado.categoriaIndex];
+      
+      // Atualizar nome da categoria
+      categoryNameElement.textContent = categoriaAtual.nome;
+      
+      // Atualizar timer
+      timerElement.textContent = estado.tempoRestante;
+      
+      // Atualizar botão de confirmação
+      btnConfirm.disabled = false;
+      btnConfirm.textContent = 'CONFIRMAR VALIDAÇÕES';
+      
+      // Atualizar progresso
+      atualizarProgresso();
+    }
+    
     // Atualizar pontos de progresso
     function atualizarProgresso() {
       const dots = progressContainer.querySelectorAll('.progress-dot');
@@ -385,96 +428,53 @@
       });
     }
 
-    // Iniciar validação para a categoria atual
-    function iniciarCategoria() {
-      // Resetar estado
-      estado.tempoRestante = 30;
-      estado.validacoes = {};
-      estado.confirmacoes = {};
-      estado.todasConfirmadas = false;
-      estado.respostasBloqueadas = false; // Resetar flag de bloqueio
-      
-      // Atualizar elementos de UI
-      atualizarUI();
-      
-      // Iniciar contador
-      iniciarContador();
-      
-      // Renderizar respostas para a categoria atual
-      renderizarRespostas();
-    }
-
-    // Atualizar elementos de UI
-    function atualizarUI() {
-      const categoriaAtual = rodadaAtual.categorias[estado.categoriaIndex];
-      
-      // Atualizar nome da categoria
-      categoryNameElement.textContent = categoriaAtual.nome;
-      
-      // Atualizar timer
-      timerElement.textContent = estado.tempoRestante;
-      
-      // Atualizar botão de confirmação
-      btnConfirm.disabled = false;
-      btnConfirm.textContent = 'CONFIRMAR VALIDAÇÕES';
-      
-      // Atualizar contador de jogadores confirmados
-      atualizarContadorConfirmacoes();
-      
-      // Atualizar progresso
-      atualizarProgresso();
-    }
-
     // Renderizar respostas para a categoria atual
     function renderizarRespostas() {
       answersContainer.innerHTML = '';
       
-      const categoriaId = rodadaAtual.categorias[estado.categoriaIndex].id;
-      const respostasCategoria = rodadaAtual.respostas.filter(
-        r => r.categoriaId === categoriaId
-      );
+      const categoriaAtual = partidaAtual.categorias[estado.categoriaIndex];
       
-      respostasCategoria.forEach(resposta => {
-        // Inicializar como válida
-        estado.validacoes[resposta.id] = true;
-        
-        const answerCard = document.createElement('div');
-        answerCard.className = 'answer-card';
-        answerCard.dataset.respostaId = resposta.id;
-        
-        const answerText = document.createElement('div');
-        answerText.className = 'answer-text';
-        answerText.textContent = resposta.texto;
-        answerCard.appendChild(answerText);
-        
-        const status = document.createElement('div');
-        status.className = 'validation-status status-valid';
-        status.textContent = 'VÁLIDA';
-        answerCard.appendChild(status);
-        
-        // Evento de clique para alternar validação
-        answerCard.addEventListener('click', function() {
-          // Não permitir alterações se as respostas estiverem bloqueadas
-          if (estado.respostasBloqueadas) return;
+      todasRespostas.forEach(respostaJogador => {
+        const resposta = respostaJogador.respostas[categoriaAtual.nome];
+        if (resposta) {
+          const answerCard = document.createElement('div');
+          answerCard.className = 'answer-card';
+          answerCard.dataset.jogadorId = respostaJogador.jogador.id;
           
-          const respostaId = this.dataset.respostaId;
+          // Inicialmente todas as respostas são válidas
+          estado.validacoes[respostaJogador.jogador.id] = true;
           
-          // Alternar estado de validação
-          estado.validacoes[respostaId] = !estado.validacoes[respostaId];
+          const answerText = document.createElement('div');
+          answerText.className = 'answer-text';
+          answerText.textContent = resposta;
+          answerCard.appendChild(answerText);
           
-          // Atualizar UI
-          if (estado.validacoes[respostaId]) {
-            this.classList.remove('invalid');
-            status.textContent = 'VÁLIDA';
-            status.className = 'validation-status status-valid';
-          } else {
-            this.classList.add('invalid');
-            status.textContent = 'INVÁLIDA';
-            status.className = 'validation-status status-invalid';
-          }
-        });
-        
-        answersContainer.appendChild(answerCard);
+          const status = document.createElement('div');
+          status.className = 'validation-status status-valid';
+          status.textContent = 'VÁLIDA';
+          answerCard.appendChild(status);
+          
+          // Evento de clique para alternar validação
+          answerCard.addEventListener('click', function() {
+            if (estado.respostasBloqueadas) return;
+            
+            // Alternar estado de validação
+            estado.validacoes[respostaJogador.jogador.id] = !estado.validacoes[respostaJogador.jogador.id];
+            
+            // Atualizar UI
+            if (estado.validacoes[respostaJogador.jogador.id]) {
+              this.classList.remove('invalid');
+              status.textContent = 'VÁLIDA';
+              status.className = 'validation-status status-valid';
+            } else {
+              this.classList.add('invalid');
+              status.textContent = 'INVÁLIDA';
+              status.className = 'validation-status status-invalid';
+            }
+          });
+          
+          answersContainer.appendChild(answerCard);
+        }
       });
     }
 
@@ -491,26 +491,37 @@
           clearInterval(estado.intervalo);
           avancarCategoria();
         }
-        
-        // Verificar se todos confirmaram
-        verificarTodasConfirmacoes();
       }, 1000);
     }
 
-    // Atualizar contador de confirmações
-    function atualizarContadorConfirmacoes() {
-      const totalJogadores = rodadaAtual.jogadores.length;
-      const confirmados = Object.keys(estado.confirmacoes).length;
-      playersConfirmedElement.textContent = `${confirmados}/${totalJogadores} jogadores confirmaram`;
+    // Simular confirmação de outros jogadores
+    function simularConfirmacoes() {
+      const totalJogadores = partidaAtual.jogadores.length;
+      
+      // Gerar tempos aleatórios para confirmação dos outros jogadores
+      for (let i = 1; i < totalJogadores; i++) {
+        const tempoAleatorio = Math.floor(Math.random() * 15000) + 5000; // 5-20 segundos
+        setTimeout(() => {
+          // Gerar ID fictício de jogador
+          const jogadorId = `jogador-${i}`;
+          
+          // Marcar como confirmado
+          if (!estado.confirmacoes[jogadorId]) {
+            estado.confirmacoes[jogadorId] = true;
+            atualizarContagemConfirmacoes();
+          }
+        }, tempoAleatorio);
+      }
     }
 
-    // Verificar se todos os jogadores confirmaram
-    function verificarTodasConfirmacoes() {
-      const totalJogadores = rodadaAtual.jogadores.length;
-      const confirmados = Object.keys(estado.confirmacoes).length;
+    // Atualizar contagem de confirmações
+    function atualizarContagemConfirmacoes() {
+      const totalConfirmados = Object.keys(estado.confirmacoes).length;
+      confirmedCountElement.textContent = totalConfirmados;
       
-      if (confirmados === totalJogadores && !estado.todasConfirmadas) {
-        estado.todasConfirmadas = true;
+      // Verificar se todos confirmaram
+      const totalJogadores = partidaAtual.jogadores.length;
+      if (totalConfirmados >= totalJogadores) {
         avancarCategoria();
       }
     }
@@ -520,11 +531,11 @@
       // Limpar intervalo
       clearInterval(estado.intervalo);
       
-      // Salvar validações (em sistema real, enviar para backend)
+      // Salvar validações
       salvarValidacoesCategoria();
       
       // Verificar se há mais categorias
-      if (estado.categoriaIndex < rodadaAtual.categorias.length - 1) {
+      if (estado.categoriaIndex < partidaAtual.categorias.length - 1) {
         estado.categoriaIndex++;
         iniciarCategoria();
       } else {
@@ -535,8 +546,8 @@
 
     // Salvar validações da categoria atual
     function salvarValidacoesCategoria() {
-      const categoriaId = rodadaAtual.categorias[estado.categoriaIndex].id;
-      console.log(`Validações salvas para categoria ${categoriaId}:`, estado.validacoes);
+      const categoriaAtual = partidaAtual.categorias[estado.categoriaIndex];
+      console.log(`Validações salvas para categoria ${categoriaAtual.nome}:`, estado.validacoes);
       // Em sistema real: enviar para backend
     }
 
@@ -546,11 +557,11 @@
       // window.location.href = 'resultados.html';
     }
 
-    // Confirmar validações do jogador atual e bloquear edições
+    // Confirmar validações do jogador atual
     function confirmarValidacoes() {
       // Marcar jogador atual como confirmado
-      const jogadorAtualId = 4; // ID do jogador atual (em sistema real, viria da sessão)
-      estado.confirmacoes[jogadorAtualId] = true;
+      const jogadorId = dadosRodada.jogadorId;
+      estado.confirmacoes[jogadorId] = true;
       
       // Bloquear edição das respostas
       estado.respostasBloqueadas = true;
@@ -561,12 +572,13 @@
       });
       
       // Atualizar UI
-      atualizarContadorConfirmacoes();
       btnConfirm.disabled = true;
       btnConfirm.textContent = 'VALIDADO!';
       
-      // Verificar se todos confirmaram
-      verificarTodasConfirmacoes();
+      // Atualizar contagem
+      atualizarContagemConfirmacoes();
+      
+      // Em sistema real: enviar confirmação para o backend
     }
 
     // Evento do botão de confirmação

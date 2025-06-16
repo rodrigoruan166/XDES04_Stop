@@ -326,11 +326,12 @@
     </div>
   </section>
 
-  <script>
+<script>
     // Recuperar categorias do localStorage
     const categoriasSalvas = JSON.parse(localStorage.getItem("categorias")) || [];
     
-    // Categorias padrão do sistema
+    // Recuperar categorias padrão do sistema (se houver no banco)
+    // Em sistema real, isso viria de uma API
     const categoriasPadrao = [
       { nome: "País", descricao: "Nome de países", origem: "sistema" },
       { nome: "Animal", descricao: "Animais de todos os tipos", origem: "sistema" },
@@ -423,6 +424,13 @@
         unwantedLetters.push(checkbox.value);
       });
       
+      // Recuperar usuário logado
+      const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || {
+        id: 1,
+        nome: "Usuário Anônimo",
+        avatar: "https://i.pravatar.cc/150?img=1"
+      };
+      
       // Gerar código único para a sala
       const roomCode = gerarCodigoSala();
       
@@ -438,8 +446,16 @@
         senha: password,
         categorias: selectedCategories,
         letrasIndesejadas: unwantedLetters,
-        jogadores: [], // Será preenchido quando jogadores entrarem
-        dono: "Você" // Em sistema real, seria o ID do usuário
+        jogadores: [{
+          id: usuarioLogado.id,
+          nome: usuarioLogado.nome,
+          avatar: usuarioLogado.avatar,
+          pronto: false,
+          isOwner: true
+        }],
+        dono: usuarioLogado.id,
+        status: "esperando",
+        dataCriacao: new Date().toISOString()
       };
       
       // Salvar no localStorage (simulação do banco)

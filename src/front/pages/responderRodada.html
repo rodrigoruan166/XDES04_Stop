@@ -256,42 +256,21 @@
   </section>
 
   <script>
-    // Recuperar categorias do localStorage
-    const categoriasSalvas = JSON.parse(localStorage.getItem("categorias")) || [];
+    // Recuperar partida atual do localStorage
+    const partidaAtual = JSON.parse(localStorage.getItem('partidaAtual'));
     
-    // Gerar IDs para as categorias (se não existirem)
-    const categoriasComIds = categoriasSalvas.map((cat, index) => ({
-      id: index + 1, // Usar índice +1 como ID temporário
-      nome: cat.nome
-    }));
+    // Se não houver partida, redirecionar
+    if (!partidaAtual || !partidaAtual.letraSorteada) {
+      alert('Partida não encontrada ou não iniciada!');
+      window.location.href = 'home.html';
+    }
     
-    // Se não houver categorias cadastradas, usar um padrão
-    const categoriasPadrao = [
-      { id: 1, nome: "País" },
-      { id: 2, nome: "Animal" },
-      { id: 3, nome: "Nome" },
-      { id: 4, nome: "Objeto" },
-      { id: 5, nome: "Comida" }
-    ];
-    
-    // Usar categorias do usuário ou padrão
-    const categoriasParaRodada = categoriasComIds.length > 0 
-      ? categoriasComIds 
-      : categoriasPadrao;
-
-    // Dados da rodada (agora usando as categorias do usuário)
-    const rodadaAtual = {
-      letra: 'B',
-      tempoTotal: 90, // segundos
-      categorias: categoriasParaRodada,
-      jogadores: [
-        { id: 1, nome: "Jogador1", pronto: true },
-        { id: 2, nome: "Jogador2", pronto: false },
-        { id: 3, nome: "Você", pronto: true },
-        { id: 4, nome: "Jogador4", pronto: true }
-      ]
+    // Recuperar usuário logado
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || {
+      id: 1,
+      nome: "Usuário Anônimo"
     };
-
+    
     // Elementos DOM
     const timerElement = document.getElementById('timer');
     const letterElement = document.getElementById('current-letter');
@@ -300,14 +279,14 @@
     const playersContainer = document.getElementById('players-container');
 
     // Estado da rodada
-    let tempoRestante = rodadaAtual.tempoTotal;
+    let tempoRestante = partidaAtual.tempoPorRodada;
     let respostas = {};
     let intervalo;
 
     // Inicializar a tela
     function initRodada() {
       // Exibir letra atual
-      letterElement.textContent = rodadaAtual.letra;
+      letterElement.textContent = partidaAtual.letraSorteada;
       
       // Renderizar categorias
       renderizarCategorias();
@@ -323,7 +302,7 @@
     function renderizarCategorias() {
       categoryListElement.innerHTML = '';
       
-      rodadaAtual.categorias.forEach(categoria => {
+      partidaAtual.categorias.forEach(categoria => {
         const item = document.createElement('div');
         item.className = 'category-item';
         
@@ -336,11 +315,11 @@
         input.type = 'text';
         input.className = 'answer-input';
         input.placeholder = `Resposta para ${categoria.nome}`;
-        input.dataset.categoriaId = categoria.id;
+        input.dataset.categoriaId = categoria.nome; // Usar nome como ID
         
         // Salvar resposta quando o usuário digitar
         input.addEventListener('input', function() {
-          respostas[categoria.id] = this.value;
+          respostas[categoria.nome] = this.value;
           verificarRespostasCompletas();
         });
         
@@ -353,7 +332,7 @@
     function renderizarJogadores() {
       playersContainer.innerHTML = '';
       
-      rodadaAtual.jogadores.forEach(jogador => {
+      partidaAtual.jogadores.forEach(jogador => {
         const card = document.createElement('div');
         card.className = 'player-card';
         
@@ -385,8 +364,8 @@
           atualizarTempo();
         }
         
-        // Habilitar o botão STOP após metade do tempo (se todas as respostas estiverem preenchidas)
-        if (tempoRestante <= rodadaAtual.tempoTotal / 2) {
+        // Habilitar o botão STOP após metade do tempo
+        if (tempoRestante <= partidaAtual.tempoPorRodada / partidaAtual.tempoPorRodada) {
           verificarRespostasCompletas();
         }
       }, 1000);
@@ -401,12 +380,12 @@
 
     // Verificar se todas as respostas foram preenchidas
     function verificarRespostasCompletas() {
-      const todasPreenchidas = rodadaAtual.categorias.every(cat => 
-        respostas[cat.id] && respostas[cat.id].trim() !== ''
+      const todasPreenchidas = partidaAtual.categorias.every(cat => 
+        respostas[cat.nome] && respostas[cat.nome].trim() !== ''
       );
       
       // Habilitar o botão apenas após metade do tempo e com todas respostas preenchidas
-      const metadeTempoPassada = tempoRestante <= rodadaAtual.tempoTotal / 2;
+      const metadeTempoPassada = tempoRestante <= partidaAtual.tempoPorRodada / 2;
       btnStop.disabled = !(todasPreenchidas && metadeTempoPassada);
     }
 
@@ -414,17 +393,19 @@
     function finalizarRodada() {
       clearInterval(intervalo);
       
-      // Salvar respostas com informações da rodada
+      // Salvar respostas no localStorage
       const dadosRodada = {
-        letra: rodadaAtual.letra,
+        partidaId: partidaAtual.id,
+        letra: partidaAtual.letraSorteada,
         respostas: respostas,
-        categorias: rodadaAtual.categorias
+        jogadorId: usuarioLogado.id,
+        timestamp: new Date().toISOString()
       };
       
       localStorage.setItem('respostasRodada', JSON.stringify(dadosRodada));
       
       // Redirecionar para tela de validação
-      window.location.href = 'validar_respostas.html';
+      window.location.href = 'validarRespostas.html';
     }
 
     // Evento do botão STOP

@@ -336,17 +336,22 @@
   <script>
     // Recuperar partida atual do localStorage
     const partidaAtual = JSON.parse(localStorage.getItem('partidaAtual'));
-    const usuarioAtual = {
-      id: 1, // Em sistema real, viria da sessão
-      nome: "Você",
-      avatar: "https://i.pravatar.cc/150?img=1",
-      isOwner: true
+    
+    // Se não houver partida, redirecionar
+    if (!partidaAtual) {
+      alert('Nenhuma partida encontrada!');
+      window.location.href = 'home.html';
+    }
+    
+    // Recuperar usuário logado
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || {
+      id: 1,
+      nome: "Usuário Anônimo",
+      avatar: "https://i.pravatar.cc/150?img=1"
     };
     
     // Estado da sala
     let estado = {
-      jogadores: [],
-      todosProntos: false,
       intervalo: null,
       inatividadeTimer: null,
       tempoInatividade: 60, // 60 segundos para inatividade
@@ -379,72 +384,92 @@
       timePerRoundElement.textContent = `${partidaAtual.tempoPorRodada} seg`;
       categoriesCountElement.textContent = partidaAtual.categorias.length;
       
-      // Adicionar o usuário atual como jogador
-      adicionarJogador(usuarioAtual);
+      // Verificar se o usuário já está na partida
+      const usuarioNaPartida = partidaAtual.jogadores.some(j => j.id === usuarioLogado.id);
       
-      // Simular entrada de outros jogadores (em sistema real, isso viria do servidor)
-      setTimeout(() => {
-        adicionarJogador({
-          id: 2,
-          nome: "Jogador 2",
-          avatar: "https://i.pravatar.cc/150?img=2",
-          isOwner: false
+      if (!usuarioNaPartida) {
+        // Adicionar o usuário à partida se não estiver
+        partidaAtual.jogadores.push({
+          id: usuarioLogado.id,
+          nome: usuarioLogado.nome,
+          avatar: usuarioLogado.avatar,
+          pronto: false,
+          isOwner: usuarioLogado.id === partidaAtual.dono,
+          ultimaAtividade: Date.now()
         });
-      }, 2000);
+        
+        // Atualizar partida no localStorage
+        localStorage.setItem('partidaAtual', JSON.stringify(partidaAtual));
+        atualizarPartidaNoBanco(partidaAtual);
+      }
       
-      setTimeout(() => {
-        adicionarJogador({
-          id: 3,
-          nome: "Jogador 3",
-          avatar: "https://i.pravatar.cc/150?img=3",
-          isOwner: false
-        });
-      }, 4000);
+      // Atualizar contador de jogadores
+      atualizarContadorJogadores();
+      
+      // Renderizar jogadores
+      renderizarJogadores();
       
       // Iniciar verificação de inatividade
       iniciarVerificacaoInatividade();
+      
+      // Iniciar polling para atualizações
+      setInterval(atualizarPartida, 5000);
     }
     
-    // Adicionar jogador à sala
-    function adicionarJogador(jogador) {
-      // Verificar se o jogador já está na lista
-      if (!estado.jogadores.some(j => j.id === jogador.id)) {
-        estado.jogadores.push({
-          ...jogador,
-          pronto: false,
-          ultimaAtividade: Date.now(),
-          ativo: true
-        });
-        
-        atualizarContadorJogadores();
-        renderizarJogadores();
+    // Atualizar partida no "banco" (localStorage)
+    function atualizarPartidaNoBanco(partida) {
+      const partidas = JSON.parse(localStorage.getItem('partidas')) || [];
+      const index = partidas.findIndex(p => p.id === partida.id);
+      
+      if (index !== -1) {
+        partidas[index] = partida;
+        localStorage.setItem('partidas', JSON.stringify(partidas));
+      }
+    }
+    
+    // Buscar atualizações da partida
+    function atualizarPartida() {
+      const partidas = JSON.parse(localStorage.getItem('partidas')) || [];
+      const partidaAtualizada = partidas.find(p => p.id === partidaAtual.id);
+      
+      if (partidaAtualizada) {
+        // Atualizar apenas se houver mudanças
+        if (JSON.stringify(partidaAtualizada) !== JSON.stringify(partidaAtual)) {
+          Object.assign(partidaAtual, partidaAtualizada);
+          localStorage.setItem('partidaAtual', JSON.stringify(partidaAtual));
+          
+          // Atualizar UI
+          atualizarContadorJogadores();
+          renderizarJogadores();
+          verificarTodosProntos();
+        }
       }
     }
     
     // Atualizar contador de jogadores
     function atualizarContadorJogadores() {
-      currentPlayersElement.textContent = estado.jogadores.length;
+      currentPlayersElement.textContent = partidaAtual.jogadores.length;
     }
     
     // Renderizar lista de jogadores
     function renderizarJogadores() {
       playersContainer.innerHTML = '';
       
-      estado.jogadores.forEach(jogador => {
+      partidaAtual.jogadores.forEach(jogador => {
         const playerCard = document.createElement('div');
-        playerCard.className = `player-card ${jogador.id === usuarioAtual.id ? 'you' : ''} ${jogador.pronto ? 'ready' : ''} ${!jogador.ativo ? 'inactive' : ''}`;
+        playerCard.className = `player-card ${jogador.id === usuarioLogado.id ? 'you' : ''} ${jogador.pronto ? 'ready' : ''}`;
         
         playerCard.innerHTML = `
           <img src="${jogador.avatar}" alt="${jogador.nome}" class="player-avatar">
-          <div class="player-name">${jogador.nome} ${jogador.id === usuarioAtual.id ? '(Você)' : ''}</div>
-          <div class="player-status ${jogador.pronto ? 'status-ready' : jogador.ativo ? 'status-waiting' : 'status-inactive'}">
-            ${jogador.pronto ? 'PRONTO' : jogador.ativo ? 'AGUARDANDO' : 'INATIVO'}
+          <div class="player-name">${jogador.nome} ${jogador.id === usuarioLogado.id ? '(Você)' : ''}</div>
+          <div class="player-status ${jogador.pronto ? 'status-ready' : 'status-waiting'}">
+            ${jogador.pronto ? 'PRONTO' : 'AGUARDANDO'}
           </div>
-          ${jogador.id !== usuarioAtual.id && usuarioAtual.isOwner ? '<button class="kick-btn">X</button>' : ''}
+          ${jogador.id !== usuarioLogado.id && usuarioLogado.id === partidaAtual.dono ? '<button class="kick-btn">X</button>' : ''}
         `;
         
         // Botão de expulsar (só para dono da sala e outros jogadores)
-        if (jogador.id !== usuarioAtual.id && usuarioAtual.isOwner) {
+        if (jogador.id !== usuarioLogado.id && usuarioLogado.id === partidaAtual.dono) {
           const kickBtn = playerCard.querySelector('.kick-btn');
           kickBtn.addEventListener('click', () => {
             if (confirm(`Expulsar ${jogador.nome}?`)) {
@@ -459,7 +484,8 @@
     
     // Remover jogador
     function removerJogador(jogadorId) {
-      estado.jogadores = estado.jogadores.filter(j => j.id !== jogadorId);
+      partidaAtual.jogadores = partidaAtual.jogadores.filter(j => j.id !== jogadorId);
+      atualizarPartidaNoBanco(partidaAtual);
       atualizarContadorJogadores();
       renderizarJogadores();
       verificarTodosProntos();
@@ -469,18 +495,17 @@
     function iniciarVerificacaoInatividade() {
       estado.inatividadeTimer = setInterval(() => {
         const agora = Date.now();
-        estado.jogadores.forEach(jogador => {
+        
+        partidaAtual.jogadores.forEach(jogador => {
           // Se o jogador não está pronto e está inativo por mais de 60s
           if (!jogador.pronto && (agora - jogador.ultimaAtividade) > estado.tempoInatividade * 1000) {
-            if (jogador.id === usuarioAtual.id) {
+            if (jogador.id === usuarioLogado.id) {
               // Se for o usuário atual, redireciona para a home
               alert('Você foi desconectado por inatividade');
               window.location.href = 'home.html';
-            } else {
-              // Marca jogador como inativo
-              jogador.ativo = false;
-              renderizarJogadores();
-              verificarTodosProntos();
+            } else if (partidaAtual.dono === usuarioLogado.id) {
+              // Se for o dono, pode remover o jogador inativo
+              removerJogador(jogador.id);
             }
           }
         });
@@ -488,40 +513,36 @@
     }
     
     // Atualizar atividade do jogador
-    function atualizarAtividade(jogadorId) {
-      const jogador = estado.jogadores.find(j => j.id === jogadorId);
+    function atualizarAtividade() {
+      const jogador = partidaAtual.jogadores.find(j => j.id === usuarioLogado.id);
       if (jogador) {
         jogador.ultimaAtividade = Date.now();
-        if (!jogador.ativo) {
-          jogador.ativo = true;
-          renderizarJogadores();
-        }
+        atualizarPartidaNoBanco(partidaAtual);
       }
     }
     
     // Marcar jogador como pronto
-    function marcarPronto(jogadorId) {
-      const jogador = estado.jogadores.find(j => j.id === jogadorId);
-      if (jogador && jogador.ativo) {
+    function marcarPronto() {
+      const jogador = partidaAtual.jogadores.find(j => j.id === usuarioLogado.id);
+      if (jogador) {
         jogador.pronto = !jogador.pronto;
         jogador.ultimaAtividade = Date.now();
-        renderizarJogadores();
-        verificarTodosProntos();
         
-        // Atualizar botão do usuário atual
-        if (jogadorId === usuarioAtual.id) {
-          estado.usuarioPronto = jogador.pronto;
-          readyBtn.textContent = jogador.pronto ? 'NÃO ESTOU PRONTO' : 'ESTOU PRONTO';
-          readyBtn.classList.toggle('ready', jogador.pronto);
-        }
+        // Atualizar botão
+        estado.usuarioPronto = jogador.pronto;
+        readyBtn.textContent = jogador.pronto ? 'NÃO ESTOU PRONTO' : 'ESTOU PRONTO';
+        readyBtn.classList.toggle('ready', jogador.pronto);
+        
+        // Atualizar partida
+        atualizarPartidaNoBanco(partidaAtual);
+        verificarTodosProntos();
       }
     }
     
     // Verificar se todos estão prontos
     function verificarTodosProntos() {
-      const jogadoresAtivos = estado.jogadores.filter(j => j.ativo);
-      const todosProntos = jogadoresAtivos.length > 0 && 
-        jogadoresAtivos.every(j => j.pronto);
+      const todosProntos = partidaAtual.jogadores.length > 0 && 
+        partidaAtual.jogadores.every(j => j.pronto);
       
       if (todosProntos && !estado.todosProntos) {
         estado.todosProntos = true;
@@ -563,8 +584,22 @@
     
     // Iniciar a partida
     function iniciarPartida() {
-      // Salvar estado da partida (com jogadores prontos)
-      partidaAtual.jogadores = estado.jogadores;
+      // Gerar letra aleatória (excluindo letras indesejadas)
+      const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const letrasIndesejadas = partidaAtual.letrasIndesejadas || [];
+      const letrasDisponiveis = letras.split('').filter(letra => 
+        !letrasIndesejadas.includes(letra)
+      );
+      
+      const letraSorteada = letrasDisponiveis[Math.floor(Math.random() * letrasDisponiveis.length)];
+      
+      // Atualizar partida com letra sorteada
+      partidaAtual.letraSorteada = letraSorteada;
+      partidaAtual.status = "iniciada";
+      partidaAtual.dataInicio = new Date().toISOString();
+      
+      // Atualizar no banco
+      atualizarPartidaNoBanco(partidaAtual);
       localStorage.setItem('partidaAtual', JSON.stringify(partidaAtual));
       
       // Redirecionar para tela de responder rodada
@@ -579,21 +614,14 @@
     }
     
     // Evento do botão "Pronto"
-    readyBtn.addEventListener('click', () => {
-      marcarPronto(usuarioAtual.id);
-    });
+    readyBtn.addEventListener('click', marcarPronto);
     
     // Inicializar a sala quando a página carregar
     window.addEventListener('DOMContentLoaded', initSala);
     
     // Atualizar atividade do usuário em interações
-    document.addEventListener('click', () => {
-      atualizarAtividade(usuarioAtual.id);
-    });
-    
-    document.addEventListener('keypress', () => {
-      atualizarAtividade(usuarioAtual.id);
-    });
+    document.addEventListener('click', atualizarAtividade);
+    document.addEventListener('keypress', atualizarAtividade);
   </script>
 </body>
 </html>
