@@ -365,7 +365,7 @@
         }
         
         // Habilitar o botão STOP após metade do tempo
-        if (tempoRestante <= partidaAtual.tempoPorRodada / partidaAtual.tempoPorRodada) {
+        if (tempoRestante <= partidaAtual.tempoPorRodada / 2) {
           verificarRespostasCompletas();
         }
       }, 1000);
