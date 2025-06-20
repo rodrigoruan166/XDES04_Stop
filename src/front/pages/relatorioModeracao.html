@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório de Moderação - Stop!</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  background: url("https://i.postimg.cc/DzHNSmDC/background.jpg") no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+}
+
+header nav a {
+  margin: 0 15px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  text-shadow: 1px 1px 4px #000;
+}
+
+.main {
+  flex-grow: 1;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1, h2, h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 4px #000000be;
+}
+
+.controls-container {
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.filter-container, .sort-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.filter-container .filter-group, .sort-container .sort-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 200px;
+}
+
+.filter-container label, .sort-container label {
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 3px;
+  text-shadow: 1px 1px 4px #000;
+}
+
+.filter-container input, .filter-container select, .sort-container select {
+  width: 100%;
+  max-width: 180px;
+  background: #ffc800;
+  color: #000;
+  font-family: "Fredoka", sans-serif;
+  font-weight: bold;
+  padding: 6px 8px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.filter-container input:focus, .filter-container select:focus, .sort-container select:focus {
+  outline: none;
+  background: #ffe05f;
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.filter-container input::placeholder {
+  color: #333;
+  opacity: 0.7;
+}
+
+.filter-container .input-icon {
+  position: relative;
+  width: 100%;
+}
+
+.filter-container .input-icon i {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #000;
+  font-size: 12px;
+}
+
+.filter-container .input-icon input {
+  padding-left: 28px;
+}
+
+.clear-filters {
+  display: block;
+  margin: 8px auto 0;
+  background: #ff4d4d;
+  color: #fff;
+  font-family: "Fredoka", sans-serif;
+  font-weight: bold;
+  padding: 6px 12px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  font-size: 12px;
+}
+
+.clear-filters:hover {
+  background: #ff6666;
+  transform: scale(1.05);
+}
+
+.table-container {
+  width: 100%;
+  max-height: 320px;
+  overflow-y: auto;
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  margin-bottom: 40px;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: transparent;
+}
+
+th, td {
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+
+th {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #ffc800;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+td {
+  color: #fff;
+  font-weight: 500;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #ffc800;
+  border-radius: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #ffe05f;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #eee;
+  text-shadow: 1px 1px 4px #000;
+}
+
+canvas {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 0 auto 40px;
+  max-width: 100%;
+}
+
+.stats {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  margin-bottom: 40px;
+}
+
+.stats p {
+  font-size: 18px;
+  margin: 10px 0;
+  text-shadow: 1px 1px 4px #000;
+}
+
+@media (max-width: 768px) {
+  .filter-container, .sort-container {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .filter-container input, .filter-container select, .sort-container select {
+    max-width: 160px;
+    padding: 5px 7px;
+    font-size: 11px;
+  }
+
+  .filter-container label, .sort-container label {
+    font-size: 10px;
+  }
+
+  .filter-container .input-icon i {
+    font-size: 11px;
+    left: 7px;
+  }
+
+  .filter-container .input-icon input {
+    padding-left: 26px;
+  }
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 24px;
+  }
+
+  table, th, td, .stats p {
+    font-size: 14px;
+  }
+
+  .table-container {
+    max-height: 280px;
+  }
+
+  .filter-container, .sort-container {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-container input, .filter-container select, .sort-container select {
+    max-width: 100%;
+    font-size: 11px;
+    padding: 4px 7px;
+  }
+
+  .filter-container .input-icon input {
+    padding-left: 26px;
+  }
+
+  .filter-container .input-icon i {
+    left: 7px;
+    font-size: 11px;
+  }
+
+  .controls-container {
+    padding: 8px;
+  }
+
+  .clear-filters {
+    display: block;
+    width: fit-content;
+    margin: 10px auto 0;
+    background: #ff4d4d;
+    color: #fff;
+    font-family: "Fredoka", sans-serif;
+    font-weight: bold;
+    padding: 8px 16px;
+    border: 2px solid #000;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .clear-filters:hover {
+    background: #ff6666;
+    transform: scale(1.05);
+  }
+}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="#">
+      <img src="https://i.postimg.cc/fbVMvxkD/upscalemedia-transformed.png" alt="StopotS logo" height="50" />
+    </a>
+    <nav>
+      <a href="./home.html">Início</a>
+      <a href="./perfil.html">Perfil</a>
+      <a href="./login.html">Sair</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    <h1>Relatório de Moderação</h1>
+
+    <div class="controls-container">
+      <h3>Filtros</h3>
+      <div class="filter-container">
+        <div class="filter-group">
+          <label for="filterData">Data (DD/MM/YYYY):</label>
+          <div class="input-icon">
+            <i class="fa fa-calendar"></i>
+            <input type="text" id="filterData" placeholder="Ex: 15/05/2025">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label for="filterTipo">Tipo de Infração:</label>
+          <select id="filterTipo">
+            <option value="">Todos</option>
+            <option value="Linguagem imprópria">Linguagem imprópria</option>
+            <option value="Trapaça">Trapaça</option>
+            <option value="Comportamento antidesportivo">Comportamento antidesportivo</option>
+            <option value="Exploração de bugs">Exploração de bugs</option>
+            <option value="Spam">Spam</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterReincidencias">Reincidências:</label>
+          <div class="input-icon">
+            <i class="fa fa-redo"></i>
+            <input type="number" id="filterReincidencias" placeholder="Ex: 2" min="0">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label for="filterStatus">Status:</label>
+          <select id="filterStatus">
+            <option value="">Todos</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Resolvido">Resolvido</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterGravidade">Gravidade:</label>
+          <select id="filterGravidade">
+            <option value="">Todos</option>
+            <option value="Alto">Alto</option>
+            <option value="Médio">Médio</option>
+            <option value="Baixo">Baixo</option>
+          </select>
+        </div>
+      </div>
+      <button class="clear-filters">Limpar Filtros</button>
+
+      <h3>Ordenação</h3>
+      <div class="sort-container">
+        <div class="sort-group">
+          <label for="sortData">Data:</label>
+          <select id="sortData">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortBanimento">Banimento:</label>
+          <select id="sortBanimento">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortReincidencias">Reincidências:</label>
+          <select id="sortReincidencias">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortGravidade">Gravidade:</label>
+          <select id="sortGravidade">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortStatus">Status:</label>
+          <select id="sortStatus">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Gravidade</th>
+            <th>Tipo de Infração</th>
+            <th>Jogador</th>
+            <th>Reincidências</th>
+            <th>Data</th>
+            <th>Banimento</th>
+            <th>Administrador</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody id="infractionsTableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Estatísticas Gerais</h2>
+    <div class="stats" id="statsContainer">
+    </div>
+
+    <canvas id="infractionChart" width="800" height="400"></canvas>
+  </section>
+
+  <footer>
+    © 2025 Stop - Criado por Rodrigo, Rodolfo, Caio e Rafael.
+  </footer>
+
+  <script>
+    // Array of infractions
+    const infractions = [
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Trapaça', jogador: 'ShadowHack', reincidencias: 2, data: '02/06/2025', banimento: '60 dias', administrador: 'AdminCarlos', descricao: 'Uso de script para respostas automáticas' },
+  { status: 'Pendente', gravidade: 'Médio', tipo: 'Spam', jogador: 'EmojiRain', reincidencias: 1, data: '03/06/2025', banimento: 'Não aplicado', administrador: 'AdminAna', descricao: 'Mensagens excessivas durante a partida' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Linguagem imprópria', jogador: 'ToxicBoy', reincidencias: 3, data: '04/06/2025', banimento: '30 dias', administrador: 'AdminPedro', descricao: 'Ofensas diretas a outros jogadores' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Comportamento antidesportivo', jogador: 'MeanGamer', reincidencias: 1, data: '05/06/2025', banimento: '15 dias', administrador: 'AdminJoão', descricao: 'Desmotivação da equipe propositalmente' },
+  { status: 'Pendente', gravidade: 'Alto', tipo: 'Exploração de bugs', jogador: 'BugHunter', reincidencias: 2, data: '06/06/2025', banimento: 'Não aplicado', administrador: 'AdminLívia', descricao: 'Uso intencional de falha para pontuação' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Spam', jogador: 'FloodQueen', reincidencias: 0, data: '07/06/2025', banimento: '7 dias', administrador: 'AdminCarlos', descricao: 'Mensagens repetitivas no chat geral' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Trapaça', jogador: 'FastFinger', reincidencias: 2, data: '08/06/2025', banimento: '30 dias', administrador: 'AdminPedro', descricao: 'Velocidade anormal de respostas' },
+  { status: 'Pendente', gravidade: 'Baixo', tipo: 'Linguagem imprópria', jogador: 'AngryBird', reincidencias: 1, data: '09/06/2025', banimento: 'Não aplicado', administrador: 'AdminAna', descricao: 'Comentários ofensivos no lobby' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Trapaça', jogador: 'CheatLord', reincidencias: 4, data: '10/06/2025', banimento: 'Permanente', administrador: 'AdminJoão', descricao: 'Utilização contínua de software externo' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Comportamento antidesportivo', jogador: 'TrollMaster', reincidencias: 2, data: '11/06/2025', banimento: '15 dias', administrador: 'AdminLívia', descricao: 'Provocação a membros da equipe adversária' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Spam', jogador: 'EmojiLover', reincidencias: 1, data: '12/06/2025', banimento: '7 dias', administrador: 'AdminPedro', descricao: 'Uso excessivo de emojis no chat' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Exploração de bugs', jogador: 'GlitchSeeker', reincidencias: 1, data: '13/06/2025', banimento: '30 dias', administrador: 'AdminCarlos', descricao: 'Exploração de bug de pontuação' },
+  { status: 'Pendente', gravidade: 'Alto', tipo: 'Linguagem imprópria', jogador: 'RudeGuy', reincidencias: 3, data: '14/06/2025', banimento: 'Não aplicado', administrador: 'AdminAna', descricao: 'Palavrões durante jogo com crianças' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Comportamento antidesportivo', jogador: 'Negator', reincidencias: 2, data: '15/06/2025', banimento: '15 dias', administrador: 'AdminLívia', descricao: 'Sabotagem em modo cooperativo' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Trapaça', jogador: 'MacroBot', reincidencias: 5, data: '16/06/2025', banimento: 'Permanente', administrador: 'AdminJoão', descricao: 'Respostas automatizadas via macro' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Spam', jogador: 'CapsLock', reincidencias: 0, data: '17/06/2025', banimento: '7 dias', administrador: 'AdminCarlos', descricao: 'Uso excessivo de letras maiúsculas' },
+  { status: 'Pendente', gravidade: 'Médio', tipo: 'Trapaça', jogador: 'BotLike', reincidencias: 2, data: '18/06/2025', banimento: 'Não aplicado', administrador: 'AdminPedro', descricao: 'Jogadas automatizadas suspeitas' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Exploração de bugs', jogador: 'ExploitKing', reincidencias: 3, data: '19/06/2025', banimento: '60 dias', administrador: 'AdminAna', descricao: 'Aproveitamento contínuo de falhas no sistema' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Linguagem imprópria', jogador: 'TrashTalker', reincidencias: 1, data: '20/06/2025', banimento: '15 dias', administrador: 'AdminLívia', descricao: 'Falas ofensivas em ambiente casual' },
+  { status: 'Pendente', gravidade: 'Médio', tipo: 'Spam', jogador: 'RepeatMsg', reincidencias: 1, data: '21/06/2025', banimento: 'Não aplicado', administrador: 'AdminCarlos', descricao: 'Repetição contínua de frases' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Comportamento antidesportivo', jogador: 'Trollina', reincidencias: 2, data: '22/06/2025', banimento: '15 dias', administrador: 'AdminJoão', descricao: 'Ofensas indiretas a colegas de equipe' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Trapaça', jogador: 'SpeedCheat', reincidencias: 3, data: '23/06/2025', banimento: '60 dias', administrador: 'AdminPedro', descricao: 'Jogadas em tempo impossível' },
+  { status: 'Pendente', gravidade: 'Baixo', tipo: 'Linguagem imprópria', jogador: 'Offender99', reincidencias: 1, data: '24/06/2025', banimento: 'Não aplicado', administrador: 'AdminLívia', descricao: 'Ofensa leve em partida amistosa' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Exploração de bugs', jogador: 'LoopBreaker', reincidencias: 2, data: '25/06/2025', banimento: '30 dias', administrador: 'AdminCarlos', descricao: 'Bug de repetição usado para pontuar' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Comportamento antidesportivo', jogador: 'RageQuitter', reincidencias: 3, data: '26/06/2025', banimento: '45 dias', administrador: 'AdminAna', descricao: 'Desistência proposital e incitação' },
+  { status: 'Pendente', gravidade: 'Médio', tipo: 'Trapaça', jogador: 'TimingGod', reincidencias: 1, data: '27/06/2025', banimento: 'Não aplicado', administrador: 'AdminJoão', descricao: 'Sincronização suspeita de jogadas' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Spam', jogador: 'CopyPasta', reincidencias: 0, data: '28/06/2025', banimento: '7 dias', administrador: 'AdminLívia', descricao: 'Colagem repetida de mensagens' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Linguagem imprópria', jogador: 'MeanWords', reincidencias: 1, data: '29/06/2025', banimento: '15 dias', administrador: 'AdminPedro', descricao: 'Uso de termos pejorativos' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Trapaça', jogador: 'UltraFast', reincidencias: 4, data: '30/06/2025', banimento: 'Permanente', administrador: 'AdminCarlos', descricao: 'Execução de jogadas sobre-humanas' },
+  { status: 'Pendente', gravidade: 'Baixo', tipo: 'Comportamento antidesportivo', jogador: 'SaltThrower', reincidencias: 1, data: '01/07/2025', banimento: 'Não aplicado', administrador: 'AdminAna', descricao: 'Respostas sarcásticas provocativas' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Spam', jogador: 'Spamzilla', reincidencias: 1, data: '02/07/2025', banimento: '7 dias', administrador: 'AdminJoão', descricao: 'Mensagem publicitária não autorizada' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Trapaça', jogador: 'AutoSolver', reincidencias: 3, data: '03/07/2025', banimento: '45 dias', administrador: 'AdminLívia', descricao: 'Soluções automáticas detectadas' },
+  { status: 'Pendente', gravidade: 'Alto', tipo: 'Linguagem imprópria', jogador: 'HaterX', reincidencias: 2, data: '04/07/2025', banimento: 'Não aplicado', administrador: 'AdminPedro', descricao: 'Incitação de ódio' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Exploração de bugs', jogador: 'CrashMaster', reincidencias: 2, data: '05/07/2025', banimento: '60 dias', administrador: 'AdminCarlos', descricao: 'Bug que forçava queda de adversários' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Comportamento antidesportivo', jogador: 'ToxicGirl', reincidencias: 2, data: '06/07/2025', banimento: '15 dias', administrador: 'AdminAna', descricao: 'Falas humilhantes' },
+  { status: 'Pendente', gravidade: 'Médio', tipo: 'Spam', jogador: 'FloodBotX', reincidencias: 2, data: '07/07/2025', banimento: 'Não aplicado', administrador: 'AdminJoão', descricao: 'Envio automatizado de mensagens no chat' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Linguagem imprópria', jogador: 'LoudKid', reincidencias: 1, data: '08/07/2025', banimento: '7 dias', administrador: 'AdminPedro', descricao: 'Palavras ofensivas durante o jogo' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Trapaça', jogador: 'TimeBreaker', reincidencias: 3, data: '09/07/2025', banimento: '60 dias', administrador: 'AdminAna', descricao: 'Manipulação do tempo de resposta' },
+  { status: 'Pendente', gravidade: 'Médio', tipo: 'Comportamento antidesportivo', jogador: 'Griefer', reincidencias: 2, data: '10/07/2025', banimento: 'Não aplicado', administrador: 'AdminLívia', descricao: 'Comportamento tóxico repetido' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Spam', jogador: 'MsgBomber', reincidencias: 0, data: '11/07/2025', banimento: '7 dias', administrador: 'AdminCarlos', descricao: 'Inundação de mensagens no pré-jogo' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Linguagem imprópria', jogador: 'SassyUser', reincidencias: 1, data: '12/07/2025', banimento: '15 dias', administrador: 'AdminPedro', descricao: 'Comentários provocativos no lobby' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Exploração de bugs', jogador: 'ScoreGlitch', reincidencias: 2, data: '13/07/2025', banimento: '45 dias', administrador: 'AdminJoão', descricao: 'Multiplicação ilegal de pontos' },
+  { status: 'Pendente', gravidade: 'Médio', tipo: 'Trapaça', jogador: 'AutoClick', reincidencias: 2, data: '14/07/2025', banimento: 'Não aplicado', administrador: 'AdminLívia', descricao: 'Comportamento semelhante a bot' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Comportamento antidesportivo', jogador: 'CryGamer', reincidencias: 1, data: '15/07/2025', banimento: '7 dias', administrador: 'AdminAna', descricao: 'Críticas ofensivas após derrota' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Spam', jogador: 'PromoSpammer', reincidencias: 2, data: '16/07/2025', banimento: '15 dias', administrador: 'AdminCarlos', descricao: 'Envio de links externos no chat' },
+  { status: 'Pendente', gravidade: 'Baixo', tipo: 'Linguagem imprópria', jogador: 'WordFreak', reincidencias: 1, data: '17/07/2025', banimento: 'Não aplicado', administrador: 'AdminPedro', descricao: 'Uso de palavras ofensivas sutis' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Trapaça', jogador: 'QuickSolve', reincidencias: 3, data: '18/07/2025', banimento: '30 dias', administrador: 'AdminJoão', descricao: 'Tempo de resposta humanamente impossível' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Comportamento antidesportivo', jogador: 'AngryPro', reincidencias: 2, data: '19/07/2025', banimento: '45 dias', administrador: 'AdminLívia', descricao: 'Comportamento abusivo reiterado' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Spam', jogador: 'TextLoop', reincidencias: 1, data: '20/07/2025', banimento: '7 dias', administrador: 'AdminAna', descricao: 'Repetição excessiva de palavras' },
+  { status: 'Pendente', gravidade: 'Médio', tipo: 'Exploração de bugs', jogador: 'BugExploitX', reincidencias: 1, data: '21/07/2025', banimento: 'Não aplicado', administrador: 'AdminCarlos', descricao: 'Aproveitamento de falha gráfica' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Trapaça', jogador: 'FastHands', reincidencias: 4, data: '22/07/2025', banimento: '60 dias', administrador: 'AdminPedro', descricao: 'Execução automática de jogadas' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Comportamento antidesportivo', jogador: 'SoreLoser', reincidencias: 1, data: '23/07/2025', banimento: '7 dias', administrador: 'AdminJoão', descricao: 'Provocações pós-derrota' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Linguagem imprópria', jogador: 'BitterTalk', reincidencias: 2, data: '24/07/2025', banimento: '15 dias', administrador: 'AdminLívia', descricao: 'Termos ofensivos indiretos' },
+  { status: 'Pendente', gravidade: 'Alto', tipo: 'Exploração de bugs', jogador: 'CrashGod', reincidencias: 3, data: '25/07/2025', banimento: 'Não aplicado', administrador: 'AdminAna', descricao: 'Forçou travamentos intencionais' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Trapaça', jogador: 'SolveBot', reincidencias: 3, data: '26/07/2025', banimento: '30 dias', administrador: 'AdminCarlos', descricao: 'Indícios de automação via bot' },
+  { status: 'Resolvido', gravidade: 'Baixo', tipo: 'Spam', jogador: 'RepeatAll', reincidencias: 1, data: '27/07/2025', banimento: '7 dias', administrador: 'AdminPedro', descricao: 'Copiou frases constantemente' },
+  { status: 'Pendente', gravidade: 'Médio', tipo: 'Comportamento antidesportivo', jogador: 'MeanKid', reincidencias: 2, data: '28/07/2025', banimento: 'Não aplicado', administrador: 'AdminJoão', descricao: 'Ameaças verbais durante a partida' },
+  { status: 'Resolvido', gravidade: 'Alto', tipo: 'Linguagem imprópria', jogador: 'ToxicLegend', reincidencias: 4, data: '29/07/2025', banimento: 'Permanente', administrador: 'AdminLívia', descricao: 'Conduta verbal severa e reincidente' },
+  { status: 'Resolvido', gravidade: 'Médio', tipo: 'Exploração de bugs', jogador: 'ScoreLoophole', reincidencias: 1, data: '30/07/2025', banimento: '30 dias', administrador: 'AdminAna', descricao: 'Pontuação gerada indevidamente' },
+  { status: 'Pendente', gravidade: 'Baixo', tipo: 'Spam', jogador: 'MsgLoopBot', reincidencias: 1, data: '31/07/2025', banimento: 'Não aplicado', administrador: 'AdminCarlos', descricao: 'Flood de frases via script' }
+];
+
+
+    // Function to parse date (DD/MM/YYYY) to Date object
+    function parseDate(dateStr) {
+      const [day, month, year] = dateStr.split('/').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    // Function to get banimento order
+    function getBanimentoOrder(banimento) {
+      console.log(banimento)
+      const order = {
+        'Permanente': 6,
+        '60 dias': 5,
+        '45 dias': 4,
+        '30 dias': 3,
+        '15 dias': 2,
+        '7 dias': 1,
+        'Não aplicado': 0
+      };
+      return order[banimento] || 0;
+    }
+
+    // Function to get gravidade order
+    function getGravidadeOrder(gravidade) {
+      const order = {
+        'Alto': 3,
+        'Médio': 2,
+        'Baixo': 1
+      };
+      return order[gravidade] || 0;
+    }
+
+    // Function to apply filters
+    function applyFilters(infractions) {
+      const filterData = document.getElementById('filterData').value.trim();
+      const filterTipo = document.getElementById('filterTipo').value;
+      const filterReincidencias = document.getElementById('filterReincidencias').value;
+      const filterStatus = document.getElementById('filterStatus').value;
+      const filterGravidade = document.getElementById('filterGravidade').value;
+
+      return infractions.filter(infraction => {
+        // Filter by Data (partial or exact match)
+        if (filterData) {
+          if (!infraction.data.includes(filterData)) return false;
+        }
+
+        // Filter by Tipo de Infração
+        if (filterTipo && infraction.tipo !== filterTipo) return false;
+
+        // Filter by Reincidências (exact match)
+        if (filterReincidencias && infraction.reincidencias !== parseInt(filterReincidencias)) return false;
+
+        // Filter by Status
+        if (filterStatus && infraction.status !== filterStatus) return false;
+
+        // Filter by Gravidade
+        if (filterGravidade && infraction.gravidade !== filterGravidade) return false;
+
+        return true;
+      });
+    }
+
+    // Function to populate table with filtered and sorted data
+    function populateTable() {
+      const tbody = document.getElementById('infractionsTableBody');
+      const sortData = document.getElementById('sortData').value;
+      const sortBanimento = document.getElementById('sortBanimento').value;
+      const sortReincidencias = document.getElementById('sortReincidencias').value;
+      const sortGravidade = document.getElementById('sortGravidade').value;
+      const sortStatus = document.getElementById('sortStatus').value;
+
+      // Apply filters
+      let filteredInfractions = applyFilters([...infractions]);
+
+      // Apply sorting
+      const sortCriteria = [
+        { key: 'data', order: sortData, compare: (a, b) => parseDate(a.data) - parseDate(b.data) },
+        { key: 'banimento', order: sortBanimento, compare: (a, b) => getBanimentoOrder(a.banimento) - getBanimentoOrder(b.banimento) },
+        { key: 'reincidencias', order: sortReincidencias, compare: (a, b) => a.reincidencias - b.reincidencias },
+        { key: 'gravidade', order: sortGravidade, compare: (a, b) => getGravidadeOrder(a.gravidade) - getGravidadeOrder(b.gravidade) },
+        { key: 'status', order: sortStatus, compare: (a, b) => (a.status || a.sortStatus).localeCompare(b.status || b.sortStatus) }
+      ].filter(c => c.order !== 'none');
+
+      filteredInfractions.sort((a, b) => {
+        for (const { order, compare } of sortCriteria) {
+          const result = order === 'asc' ? compare(a, b) : compare(b, a);
+          if (result !== 0) return result;
+        }
+        return 0;
+      });
+
+      // Populate table
+      tbody.innerHTML = '';
+      filteredInfractions.forEach(infraction => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${infraction.status || infraction.sortStatus}</td>
+          <td>${infraction.gravidade}</td>
+          <td>${infraction.tipo}</td>
+          <td>${infraction.jogador}</td>
+          <td>${infraction.reincidencias}</td>
+          <td>${infraction.data}</td>
+          <td>${infraction.banimento}</td>
+          <td>${infraction.administrador}</td>
+          <td>${infraction.descricao}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Function to calculate and display statistics
+    function displayStats() {
+      const statsContainer = document.getElementById('statsContainer');
+      const filteredInfractions = applyFilters([...infractions]);
+      const totalInfractions = filteredInfractions.length;
+      const avgResponseTime = totalInfractions > 0 ? 4.0 : 0;
+
+      const reincidences = {};
+      filteredInfractions.forEach(infraction => {
+        reincidences[infraction.jogador] = (reincidences[infraction.jogador] || 0) + infraction.reincidencias;
+      });
+
+      const sortedReincidences = Object.entries(reincidences)
+        .filter(a => a[1] > 1)
+        .sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+      statsContainer.innerHTML = `
+        <p><strong>Tempo médio de resposta:</strong> ${avgResponseTime.toFixed(1)} dias</p>
+        <p><strong>Total de infrações registradas:</strong> ${totalInfractions}</p>
+        <p><strong>Jogadores com mais reincidências:</strong></p>
+        <ul>
+          ${sortedReincidences.map(([jogador, count]) => `<li><strong>${jogador}</strong> – ${count} ocorrências</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    // Function to update chart
+    function updateChart() {
+      const ctx = document.getElementById('infractionChart').getContext('2d');
+      const filteredInfractions = applyFilters([...infractions]);
+      const counts = {};
+      filteredInfractions.forEach(infraction => {
+        counts[infraction.tipo] = (counts[infraction.tipo] || 0) + 1;
+      });
+
+      const labels = Object.keys(counts);
+      const data = Object.values(counts);
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Ocorrências',
+            data: data,
+            backgroundColor: ['#ffc800', '#ff4d4d', '#4bc0c0', '#ff7300', '#9966ff', '#ff99cc'],
+            borderColor: '#000',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Frequência de Tipos de Infração',
+              color: '#fff',
+              font: { size: 18 }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.2)' }
+            },
+            x: {
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.2)' }
+            }
+          }
+        }
+      });
+    }
+
+    // Function to clear filters
+    function clearFilters() {
+      document.getElementById('filterData').value = '';
+      document.getElementById('filterTipo').value = '';
+      document.getElementById('filterReincidencias').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('filterGravidade').value = '';
+      populateTable();
+      displayStats();
+      updateChart();
+    }
+
+    // Initialize page
+    function init() {
+      populateTable();
+      displayStats();
+      updateChart();
+
+      // Add event listeners for sort and filter controls
+      document.getElementById('sortData').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortBanimento').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortReincidencias').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortGravidade').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortStatus').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterData').addEventListener('input', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterTipo').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterReincidencias').addEventListener('input', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterStatus').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterGravidade').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.querySelector('.clear-filters').addEventListener('click', clearFilters);
+    }
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

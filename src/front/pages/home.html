@@ -115,6 +115,11 @@
 					font-size: 16px;
 					padding: 12px 24px;
 				}
+
+				header nav a {
+					margin: 0 10px;
+					font-size: 14px;
+				}
 			}
 		</style>
 	</head>
@@ -131,6 +136,7 @@
 				<a href="#como-funciona">Como Funciona</a>
 				<a href="./categoria.html">Categorias</a>
 				<a href="./perfil.html">Ver Perfil</a>
+				<a id="moderationLink" href="./relatorioModeracao.html" style="display: none;">Relatório de Moderação</a>
 				<a href="./login.html">Sair</a>
 			</nav>
 		</header>
@@ -142,7 +148,7 @@
 				Escolha uma letra, preencha as palavras e ganhe pontos!
 			</p>
 			<div class="button-group">
-				<button class="btn-custom">Criar Sala</button>
+				<button onclick="window.location.href = './criarPartida.html'" class="btn-custom">Criar Partida</button>
 				<button class="btn-custom">Entrar em Sala</button>
 			</div>
 		</section>
@@ -150,5 +156,21 @@
 		<footer>
 			© 2025 Stop - Criado por Rodrigo, Rodolfo, Caio e Rafael.
 		</footer>
+
+		<script>
+			// Check if user is admin and show moderation link
+			function checkAdminStatus() {
+				const moderationLink = document.getElementById('moderationLink');
+				const isAdmin = localStorage.getItem('admin') === '1';
+				if (isAdmin) {
+					moderationLink.style.display = 'inline';
+				} else {
+					moderationLink.style.display = 'none';
+				}
+			}
+
+			// Run on page load
+			document.addEventListener('DOMContentLoaded', checkAdminStatus);
+		</script>
 	</body>
 </html>

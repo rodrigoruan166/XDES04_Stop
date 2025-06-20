@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sala de Espera - Stop</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap");
+
+    body {
+      margin: 0;
+      font-family: "Fredoka", sans-serif;
+      background: url("https://i.postimg.cc/DzHNSmDC/background.jpg")
+        no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      z-index: -1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header nav a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-shadow: 1px 1px 4px #000;
+      color: #ffc800;
+    }
+
+    .room-info {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+    }
+
+    .room-code {
+      font-size: 2em;
+      font-weight: bold;
+      color: #ffc800;
+      margin: 15px 0;
+      letter-spacing: 3px;
+    }
+
+    .share-options {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+
+    .share-input {
+      flex: 1;
+      max-width: 400px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      background: #eee;
+      color: #333;
+    }
+
+    .copy-btn {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .game-settings {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .setting-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    .setting-label {
+      font-size: 0.9em;
+      color: #aaa;
+      margin-bottom: 5px;
+    }
+
+    .setting-value {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #ffc800;
+    }
+
+    .players-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .player-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      transition: transform 0.3s;
+    }
+
+    .player-card.you {
+      border: 2px solid #ffc800;
+      transform: scale(1.05);
+    }
+
+    .player-card.ready {
+      background: rgba(76, 175, 80, 0.2);
+    }
+
+    .player-card.inactive {
+      opacity: 0.6;
+    }
+
+    .player-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 15px;
+      border: 3px solid #ffc800;
+    }
+
+    .player-name {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #ffc800;
+      margin-bottom: 10px;
+    }
+
+    .player-status {
+      font-size: 0.9em;
+      padding: 5px 10px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .status-ready {
+      background: #4caf50;
+    }
+
+    .status-waiting {
+      background: #f44336;
+    }
+
+    .status-inactive {
+      background: #777;
+    }
+
+    .kick-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #f44336;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      display: none;
+    }
+
+    .player-card:hover .kick-btn {
+      display: block;
+    }
+
+    .ready-btn {
+      display: inline-block;
+      background: #ffc800;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 10px;
+      min-width: 200px;
+    }
+
+    .ready-btn:hover {
+      background: #ffe05f;
+    }
+
+    .ready-btn.ready {
+      background: #4caf50;
+      color: white;
+    }
+
+    .countdown {
+      font-size: 3em;
+      font-weight: bold;
+      color: #ffc800;
+      margin: 20px 0;
+      text-shadow: 0 0 10px rgba(255, 200, 0, 0.5);
+      display: none;
+    }
+
+    .start-info {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #ffc800;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="./home.html">
+      <img
+        src="https://i.postimg.cc/fbVMvxkD/upscalemedia-transformed.png"
+        alt="StopotS logo"
+        height="50"
+      />
+    </a>
+    <nav>
+      <a href="./home.html">Início</a>
+      <a href="#categoria.html">Categorias</a>
+      <a href="./perfil.html">Ver Perfil</a>
+      <a href="./login.html">Sair</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    <div class="card">
+      <h1>SALA DE ESPERA</h1>
+      
+      <div class="room-info">
+        <h2>Partida: <span id="room-name">Minha Partida</span></h2>
+        <p>Compartilhe este código com seus amigos:</p>
+        <div class="room-code" id="room-code">ABCD12</div>
+        
+        <div class="share-options">
+          <input type="text" class="share-input" id="room-link" readonly>
+          <button class="copy-btn" onclick="copiarLink()">Copiar Link</button>
+        </div>
+      </div>
+      
+      <div class="game-settings">
+        <div class="setting-item">
+          <div class="setting-label">Jogadores</div>
+          <div class="setting-value"><span id="current-players">1</span>/<span id="max-players">8</span></div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-label">Rodadas</div>
+          <div class="setting-value" id="rounds-count">5</div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-label">Tempo por Rodada</div>
+          <div class="setting-value" id="time-per-round">90 seg</div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-label">Categorias</div>
+          <div class="setting-value" id="categories-count">10</div>
+        </div>
+      </div>
+      
+      <div class="players-container" id="players-container">
+        <!-- Jogadores serão carregados aqui -->
+      </div>
+      
+      <div class="start-info" id="start-info">
+        Aguardando jogadores marcarem "Pronto"...
+      </div>
+      
+      <div class="countdown" id="countdown">
+        5
+      </div>
+      
+      <button class="ready-btn" id="ready-btn">ESTOU PRONTO</button>
+    </div>
+  </section>
+
+  <script>
+    // Recuperar partida atual do localStorage
+    const partidaAtual = JSON.parse(localStorage.getItem('partidaAtual'));
+    
+    // Se não houver partida, redirecionar
+    if (!partidaAtual) {
+      alert('Nenhuma partida encontrada!');
+      window.location.href = 'home.html';
+    }
+    
+    // Recuperar usuário logado
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || {
+      id: 1,
+      nome: "Usuário Anônimo",
+      avatar: "https://i.pravatar.cc/150?img=1"
+    };
+    
+    // Estado da sala
+    let estado = {
+      intervalo: null,
+      inatividadeTimer: null,
+      tempoInatividade: 60, // 60 segundos para inatividade
+      contagemRegressiva: 5, // 5 segundos para início
+      usuarioPronto: false
+    };
+    
+    // Elementos DOM
+    const roomNameElement = document.getElementById('room-name');
+    const roomCodeElement = document.getElementById('room-code');
+    const roomLinkElement = document.getElementById('room-link');
+    const currentPlayersElement = document.getElementById('current-players');
+    const maxPlayersElement = document.getElementById('max-players');
+    const roundsElement = document.getElementById('rounds-count');
+    const timePerRoundElement = document.getElementById('time-per-round');
+    const categoriesCountElement = document.getElementById('categories-count');
+    const playersContainer = document.getElementById('players-container');
+    const readyBtn = document.getElementById('ready-btn');
+    const countdownElement = document.getElementById('countdown');
+    const startInfoElement = document.getElementById('start-info');
+    
+    // Inicializar a sala
+    function initSala() {
+      // Preencher informações da sala
+      roomNameElement.textContent = partidaAtual.nome;
+      roomCodeElement.textContent = partidaAtual.codigo;
+      roomLinkElement.value = `${window.location.origin}/entrarPartida.html?codigo=${partidaAtual.codigo}`;
+      maxPlayersElement.textContent = partidaAtual.maxJogadores;
+      roundsElement.textContent = partidaAtual.rodadas;
+      timePerRoundElement.textContent = `${partidaAtual.tempoPorRodada} seg`;
+      categoriesCountElement.textContent = partidaAtual.categorias.length;
+      
+      // Verificar se o usuário já está na partida
+      const usuarioNaPartida = partidaAtual.jogadores.some(j => j.id === usuarioLogado.id);
+      
+      if (!usuarioNaPartida) {
+        // Adicionar o usuário à partida se não estiver
+        partidaAtual.jogadores.push({
+          id: usuarioLogado.id,
+          nome: usuarioLogado.nome,
+          avatar: usuarioLogado.avatar,
+          pronto: false,
+          isOwner: usuarioLogado.id === partidaAtual.dono,
+          ultimaAtividade: Date.now()
+        });
+        
+        // Atualizar partida no localStorage
+        localStorage.setItem('partidaAtual', JSON.stringify(partidaAtual));
+        atualizarPartidaNoBanco(partidaAtual);
+      }
+      
+      // Atualizar contador de jogadores
+      atualizarContadorJogadores();
+      
+      // Renderizar jogadores
+      renderizarJogadores();
+      
+      // Iniciar verificação de inatividade
+      iniciarVerificacaoInatividade();
+      
+      // Iniciar polling para atualizações
+      setInterval(atualizarPartida, 5000);
+    }
+    
+    // Atualizar partida no "banco" (localStorage)
+    function atualizarPartidaNoBanco(partida) {
+      const partidas = JSON.parse(localStorage.getItem('partidas')) || [];
+      const index = partidas.findIndex(p => p.id === partida.id);
+      
+      if (index !== -1) {
+        partidas[index] = partida;
+        localStorage.setItem('partidas', JSON.stringify(partidas));
+      }
+    }
+    
+    // Buscar atualizações da partida
+    function atualizarPartida() {
+      const partidas = JSON.parse(localStorage.getItem('partidas')) || [];
+      const partidaAtualizada = partidas.find(p => p.id === partidaAtual.id);
+      
+      if (partidaAtualizada) {
+        // Atualizar apenas se houver mudanças
+        if (JSON.stringify(partidaAtualizada) !== JSON.stringify(partidaAtual)) {
+          Object.assign(partidaAtual, partidaAtualizada);
+          localStorage.setItem('partidaAtual', JSON.stringify(partidaAtual));
+          
+          // Atualizar UI
+          atualizarContadorJogadores();
+          renderizarJogadores();
+          verificarTodosProntos();
+        }
+      }
+    }
+    
+    // Atualizar contador de jogadores
+    function atualizarContadorJogadores() {
+      currentPlayersElement.textContent = partidaAtual.jogadores.length;
+    }
+    
+    // Renderizar lista de jogadores
+    function renderizarJogadores() {
+      playersContainer.innerHTML = '';
+      
+      partidaAtual.jogadores.forEach(jogador => {
+        const playerCard = document.createElement('div');
+        playerCard.className = `player-card ${jogador.id === usuarioLogado.id ? 'you' : ''} ${jogador.pronto ? 'ready' : ''}`;
+        
+        playerCard.innerHTML = `
+          <img src="${jogador.avatar}" alt="${jogador.nome}" class="player-avatar">
+          <div class="player-name">${jogador.nome} ${jogador.id === usuarioLogado.id ? '(Você)' : ''}</div>
+          <div class="player-status ${jogador.pronto ? 'status-ready' : 'status-waiting'}">
+            ${jogador.pronto ? 'PRONTO' : 'AGUARDANDO'}
+          </div>
+          ${jogador.id !== usuarioLogado.id && usuarioLogado.id === partidaAtual.dono ? '<button class="kick-btn">X</button>' : ''}
+        `;
+        
+        // Botão de expulsar (só para dono da sala e outros jogadores)
+        if (jogador.id !== usuarioLogado.id && usuarioLogado.id === partidaAtual.dono) {
+          const kickBtn = playerCard.querySelector('.kick-btn');
+          kickBtn.addEventListener('click', () => {
+            if (confirm(`Expulsar ${jogador.nome}?`)) {
+              removerJogador(jogador.id);
+            }
+          });
+        }
+        
+        playersContainer.appendChild(playerCard);
+      });
+    }
+    
+    // Remover jogador
+    function removerJogador(jogadorId) {
+      partidaAtual.jogadores = partidaAtual.jogadores.filter(j => j.id !== jogadorId);
+      atualizarPartidaNoBanco(partidaAtual);
+      atualizarContadorJogadores();
+      renderizarJogadores();
+      verificarTodosProntos();
+    }
+    
+    // Verificar inatividade dos jogadores
+    function iniciarVerificacaoInatividade() {
+      estado.inatividadeTimer = setInterval(() => {
+        const agora = Date.now();
+        
+        partidaAtual.jogadores.forEach(jogador => {
+          // Se o jogador não está pronto e está inativo por mais de 60s
+          if (!jogador.pronto && (agora - jogador.ultimaAtividade) > estado.tempoInatividade * 1000) {
+            if (jogador.id === usuarioLogado.id) {
+              // Se for o usuário atual, redireciona para a home
+              alert('Você foi desconectado por inatividade');
+              window.location.href = 'home.html';
+            } else if (partidaAtual.dono === usuarioLogado.id) {
+              // Se for o dono, pode remover o jogador inativo
+              removerJogador(jogador.id);
+            }
+          }
+        });
+      }, 5000); // Verifica a cada 5 segundos
+    }
+    
+    // Atualizar atividade do jogador
+    function atualizarAtividade() {
+      const jogador = partidaAtual.jogadores.find(j => j.id === usuarioLogado.id);
+      if (jogador) {
+        jogador.ultimaAtividade = Date.now();
+        atualizarPartidaNoBanco(partidaAtual);
+      }
+    }
+    
+    // Marcar jogador como pronto
+    function marcarPronto() {
+      const jogador = partidaAtual.jogadores.find(j => j.id === usuarioLogado.id);
+      if (jogador) {
+        jogador.pronto = !jogador.pronto;
+        jogador.ultimaAtividade = Date.now();
+        
+        // Atualizar botão
+        estado.usuarioPronto = jogador.pronto;
+        readyBtn.textContent = jogador.pronto ? 'NÃO ESTOU PRONTO' : 'ESTOU PRONTO';
+        readyBtn.classList.toggle('ready', jogador.pronto);
+        
+        // Atualizar partida
+        atualizarPartidaNoBanco(partidaAtual);
+        verificarTodosProntos();
+      }
+    }
+    
+    // Verificar se todos estão prontos
+    function verificarTodosProntos() {
+      const todosProntos = partidaAtual.jogadores.length > 0 && 
+        partidaAtual.jogadores.every(j => j.pronto);
+      
+      if (todosProntos && !estado.todosProntos) {
+        estado.todosProntos = true;
+        iniciarContagemRegressiva();
+      } else if (!todosProntos && estado.todosProntos) {
+        estado.todosProntos = false;
+        cancelarContagemRegressiva();
+      }
+    }
+    
+    // Iniciar contagem regressiva para início
+    function iniciarContagemRegressiva() {
+      countdownElement.style.display = 'block';
+      startInfoElement.textContent = 'Todos prontos! Iniciando partida...';
+      
+      estado.contagemRegressiva = 5;
+      countdownElement.textContent = estado.contagemRegressiva;
+      
+      estado.intervalo = setInterval(() => {
+        estado.contagemRegressiva--;
+        countdownElement.textContent = estado.contagemRegressiva;
+        
+        if (estado.contagemRegressiva <= 0) {
+          clearInterval(estado.intervalo);
+          iniciarPartida();
+        }
+      }, 1000);
+    }
+    
+    // Cancelar contagem regressiva
+    function cancelarContagemRegressiva() {
+      if (estado.intervalo) {
+        clearInterval(estado.intervalo);
+        estado.intervalo = null;
+      }
+      countdownElement.style.display = 'none';
+      startInfoElement.textContent = 'Aguardando jogadores marcarem "Pronto"...';
+    }
+    
+    // Iniciar a partida
+    function iniciarPartida() {
+      // Gerar letra aleatória (excluindo letras indesejadas)
+      const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const letrasIndesejadas = partidaAtual.letrasIndesejadas || [];
+      const letrasDisponiveis = letras.split('').filter(letra => 
+        !letrasIndesejadas.includes(letra)
+      );
+      
+      const letraSorteada = letrasDisponiveis[Math.floor(Math.random() * letrasDisponiveis.length)];
+      
+      // Atualizar partida com letra sorteada
+      partidaAtual.letraSorteada = letraSorteada;
+      partidaAtual.status = "iniciada";
+      partidaAtual.dataInicio = new Date().toISOString();
+      
+      // Atualizar no banco
+      atualizarPartidaNoBanco(partidaAtual);
+      localStorage.setItem('partidaAtual', JSON.stringify(partidaAtual));
+      
+      // Redirecionar para tela de responder rodada
+      window.location.href = 'responderRodada.html';
+    }
+    
+    // Copiar link para área de transferência
+    function copiarLink() {
+      roomLinkElement.select();
+      document.execCommand('copy');
+      alert('Link copiado para a área de transferência!');
+    }
+    
+    // Evento do botão "Pronto"
+    readyBtn.addEventListener('click', marcarPronto);
+    
+    // Inicializar a sala quando a página carregar
+    window.addEventListener('DOMContentLoaded', initSala);
+    
+    // Atualizar atividade do usuário em interações
+    document.addEventListener('click', atualizarAtividade);
+    document.addEventListener('keypress', atualizarAtividade);
+  </script>
+</body>
+</html>
