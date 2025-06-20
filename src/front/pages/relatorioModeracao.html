@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório de Moderação - Stop!</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Fredoka", sans-serif;
+      background: url("https://i.postimg.cc/DzHNSmDC/background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5); /* Increased opacity for better contrast */
+      z-index: -1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header nav a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .main {
+      flex-grow: 1;
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 4px #000000be;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: rgba(255, 255, 255, 0.2); /* Slightly more opaque for readability */
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      margin-bottom: 40px;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      text-align: center;
+      backdrop-filter: blur(6px); /* Slightly increased blur for better legibility */
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.7); /* More opaque for header clarity */
+      color: #ffc800;
+      font-weight: bold;
+    }
+
+    td {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #eee;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    canvas {
+      background-color: rgba(255, 255, 255, 0.2); /* More opaque for chart readability */
+      border-radius: 12px;
+      padding: 20px;
+      margin: 0 auto 40px;
+      max-width: 100%;
+    }
+
+    .stats {
+      background-color: rgba(255, 255, 255, 0.2); /* More opaque for stats readability */
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      margin-bottom: 40px;
+    }
+
+    .stats p {
+      font-size: 18px;
+      margin: 10px 0;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 24px;
+      }
+
+      table, th, td, .stats p {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="#">
+      <img src="https://i.postimg.cc/fbVMvxkD/upscalemedia-transformed.png" alt="StopotS logo" height="50" />
+    </a>
+    <nav>
+      <a href="./index.html">Início</a>
+      <a href="./perfil.html">Perfil</a>
+      <a href="./login.html">Sair</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    <h1>Relatório de Moderação</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Gravidade</th>
+          <th>Tipo de Infração</th>
+          <th>Jogador</th>
+          <th>Reincidências</th>
+          <th>Data</th>
+          <th>Banimento</th>
+          <th>Administrador</th>
+          <th>Descrição</th>
+        </tr>
+      </thead>
+      <tbody id="infractionsTableBody">
+      </tbody>
+    </table>
+
+    <h2>Estatísticas Gerais</h2>
+    <div class="stats" id="statsContainer">
+    </div>
+
+    <canvas id="infractionChart" width="800" height="400"></canvas>
+  </section>
+
+  <footer>
+    © 2025 Stop - Criado por Rodrigo, Rodolfo, Caio e Rafael.
+  </footer>
+
+  <script>
+    // Array of infractions - easy to add new entries here
+    const infractions = [
+      {
+        status: 'Resolvido',
+        gravidade: 'Alto',
+        tipo: 'Linguagem imprópria',
+        jogador: 'Jogador123',
+        reincidencias: 3,
+        data: '15/05/2025',
+        banimento: 'Permanente',
+        administrador: 'AdminCarlos',
+        descricao: 'Ofensas em sala pública durante partida'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Médio',
+        tipo: 'Trapaça',
+        jogador: 'Trickster89',
+        reincidencias: 1,
+        data: '02/06/2025',
+        banimento: '30 dias',
+        administrador: 'AdminLívia',
+        descricao: 'Uso de respostas automáticas em tempo recorde'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Baixo',
+        tipo: 'Linguagem imprópria',
+        jogador: 'MariaGamer',
+        reincidencias: 2,
+        data: '28/04/2025',
+        banimento: 'Não aplicado',
+        administrador: 'AdminJoão',
+        descricao: 'Palavras de baixo calão no chat'
+      },
+      {
+        status: 'Pendente',
+        gravidade: 'Médio',
+        tipo: 'Comportamento antidesportivo',
+        jogador: 'ProGamerX',
+        reincidencias: 0,
+        data: '10/06/2025',
+        banimento: 'Não aplicado',
+        administrador: 'AdminAna',
+        descricao: 'Provocação excessiva contra outros jogadores'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Alto',
+        tipo: 'Exploração de bugs',
+        jogador: 'BugHunter22',
+        reincidencias: 1,
+        data: '05/06/2025',
+        banimento: '60 dias',
+        administrador: 'AdminPedro',
+        descricao: 'Uso intencional de falha no sistema de pontuação'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Baixo',
+        tipo: 'Spam',
+        jogador: 'ChatFlooder',
+        reincidencias: 1,
+        data: '01/06/2025',
+        banimento: '7 dias',
+        administrador: 'AdminLívia',
+        descricao: 'Envio repetitivo de mensagens no chat geral'
+      },
+      {
+        status: 'Pendente',
+        gravidade: 'Alto',
+        tipo: 'Linguagem imprópria',
+        jogador: 'TrollMaster',
+        reincidencias: 4,
+        data: '18/06/2025',
+        banimento: 'Não aplicado',
+        administrador: 'AdminCarlos',
+        descricao: 'Uso de linguagem ofensiva em múltiplas salas'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Médio',
+        tipo: 'Trapaça',
+        jogador: 'SpeedyBot',
+        reincidencias: 2,
+        data: '12/05/2025',
+        banimento: '45 dias',
+        administrador: 'AdminJoão',
+        descricao: 'Uso de software de automação para respostas rápidas'
+      }
+    ];
+
+    // Function to populate table
+    function populateTable() {
+      const tbody = document.getElementById('infractionsTableBody');
+      tbody.innerHTML = '';
+      infractions.forEach(infraction => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${infraction.status}</td>
+          <td>${infraction.gravidade}</td>
+          <td>${infraction.tipo}</td>
+          <td>${infraction.jogador}</td>
+          <td>${infraction.reincidencias}</td>
+          <td>${infraction.data}</td>
+          <td>${infraction.banimento}</td>
+          <td>${infraction.administrador}</td>
+          <td>${infraction.descricao}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Function to calculate and display statistics
+    function displayStats() {
+      const statsContainer = document.getElementById('statsContainer');
+      
+      // Calculate average response time (assuming all are resolved)
+      const totalInfractions = infractions.length;
+      const avgResponseTime = totalInfractions > 0 ? 4.0 : 0; // Static for now, can be dynamic if dates are processed
+
+      // Calculate reincidences
+      const reincidences = {};
+      infractions.forEach(infraction => {
+        reincidences[infraction.jogador] = (reincidences[infraction.jogador] || 0) + infraction.reincidencias;
+      });
+      
+      // Sort players by reincidences
+      const sortedReincidences = Object.entries(reincidences)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 2);
+
+      statsContainer.innerHTML = `
+        <p><strong>Tempo médio de resposta:</strong> ${avgResponseTime.toFixed(1)} dias</p>
+        <p><strong>Total de infrações registradas:</strong> ${totalInfractions}</p>
+        <p><strong>Jogadores com mais reincidências:</strong></p>
+        <ul>
+          ${sortedReincidences.map(([jogador, count]) => `<li><strong>${jogador}</strong> – ${count} ocorrências</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    // Function to update chart
+    function updateChart() {
+      const ctx = document.getElementById('infractionChart').getContext('2d');
+      const counts = {};
+      infractions.forEach(infraction => {
+        counts[infraction.tipo] = (counts[infraction.tipo] || 0) + 1;
+      });
+
+      const labels = Object.keys(counts);
+      const data = Object.values(counts);
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Ocorrências',
+            data: data,
+            backgroundColor: ['#ffc800', '#ff4d4d', '#4bc0c0', '#ff7300', '#9966ff', '#ff99cc'], // Expanded colors
+            borderColor: '#000',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Frequência de Tipos de Infração',
+              color: '#fff',
+              font: { size: 18 }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.2)' }
+            },
+            x: {
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.2)' }
+            }
+          }
+        }
+      });
+    }
+
+    // Initialize page
+    populateTable();
+    displayStats();
+    updateChart();
+  </script>
+</body>
+</html>
