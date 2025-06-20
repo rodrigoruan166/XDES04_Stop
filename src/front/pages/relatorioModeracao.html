@@ -5,123 +5,324 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Relatório de Moderação - Stop!</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      margin: 0;
-      font-family: "Fredoka", sans-serif;
-      background: url("https://i.postimg.cc/DzHNSmDC/background.jpg") no-repeat center center fixed;
-      background-size: cover;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  background: url("https://i.postimg.cc/DzHNSmDC/background.jpg") no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5); /* Increased opacity for better contrast */
-      z-index: -1;
-    }
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+}
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-    }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+}
 
-    header nav a {
-      margin: 0 15px;
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      text-shadow: 1px 1px 4px #000;
-    }
+header nav a {
+  margin: 0 15px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  text-shadow: 1px 1px 4px #000;
+}
 
-    .main {
-      flex-grow: 1;
-      padding: 40px 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+.main {
+  flex-grow: 1;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-    h1, h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      text-shadow: 1px 1px 4px #000000be;
-    }
+h1, h2, h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 4px #000000be;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: rgba(255, 255, 255, 0.2); /* Slightly more opaque for readability */
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      margin-bottom: 40px;
-    }
+.controls-container {
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
 
-    th, td {
-      padding: 12px 15px;
-      border: 1px solid #ccc;
-      text-align: center;
-      backdrop-filter: blur(6px); /* Slightly increased blur for better legibility */
-    }
+.filter-container, .sort-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
 
-    th {
-      background-color: rgba(0, 0, 0, 0.7); /* More opaque for header clarity */
-      color: #ffc800;
-      font-weight: bold;
-    }
+.filter-container .filter-group, .sort-container .sort-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 200px;
+}
 
-    td {
-      color: #fff;
-      font-weight: 500;
-    }
+.filter-container label, .sort-container label {
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 3px;
+  text-shadow: 1px 1px 4px #000;
+}
 
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 14px;
-      color: #eee;
-      text-shadow: 1px 1px 4px #000;
-    }
+.filter-container input, .filter-container select, .sort-container select {
+  width: 100%;
+  max-width: 180px;
+  background: #ffc800;
+  color: #000;
+  font-family: "Fredoka", sans-serif;
+  font-weight: bold;
+  padding: 6px 8px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  font-size: 12px;
+  box-sizing: border-box;
+}
 
-    canvas {
-      background-color: rgba(255, 255, 255, 0.2); /* More opaque for chart readability */
-      border-radius: 12px;
-      padding: 20px;
-      margin: 0 auto 40px;
-      max-width: 100%;
-    }
+.filter-container input:focus, .filter-container select:focus, .sort-container select:focus {
+  outline: none;
+  background: #ffe05f;
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
 
-    .stats {
-      background-color: rgba(255, 255, 255, 0.2); /* More opaque for stats readability */
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      margin-bottom: 40px;
-    }
+.filter-container input::placeholder {
+  color: #333;
+  opacity: 0.7;
+}
 
-    .stats p {
-      font-size: 18px;
-      margin: 10px 0;
-      text-shadow: 1px 1px 4px #000;
-    }
+.filter-container .input-icon {
+  position: relative;
+  width: 100%;
+}
 
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 24px;
-      }
+.filter-container .input-icon i {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #000;
+  font-size: 12px;
+}
 
-      table, th, td, .stats p {
-        font-size: 14px;
-      }
-    }
+.filter-container .input-icon input {
+  padding-left: 28px;
+}
+
+.clear-filters {
+  display: block;
+  margin: 8px auto 0;
+  background: #ff4d4d;
+  color: #fff;
+  font-family: "Fredoka", sans-serif;
+  font-weight: bold;
+  padding: 6px 12px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  font-size: 12px;
+}
+
+.clear-filters:hover {
+  background: #ff6666;
+  transform: scale(1.05);
+}
+
+.table-container {
+  width: 100%;
+  max-height: 320px;
+  overflow-y: auto;
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  margin-bottom: 40px;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: transparent;
+}
+
+th, td {
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+
+th {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #ffc800;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+td {
+  color: #fff;
+  font-weight: 500;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #ffc800;
+  border-radius: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #ffe05f;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #eee;
+  text-shadow: 1px 1px 4px #000;
+}
+
+canvas {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 0 auto 40px;
+  max-width: 100%;
+}
+
+.stats {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  margin-bottom: 40px;
+}
+
+.stats p {
+  font-size: 18px;
+  margin: 10px 0;
+  text-shadow: 1px 1px 4px #000;
+}
+
+@media (max-width: 768px) {
+  .filter-container, .sort-container {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .filter-container input, .filter-container select, .sort-container select {
+    max-width: 160px;
+    padding: 5px 7px;
+    font-size: 11px;
+  }
+
+  .filter-container label, .sort-container label {
+    font-size: 10px;
+  }
+
+  .filter-container .input-icon i {
+    font-size: 11px;
+    left: 7px;
+  }
+
+  .filter-container .input-icon input {
+    padding-left: 26px;
+  }
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 24px;
+  }
+
+  table, th, td, .stats p {
+    font-size: 14px;
+  }
+
+  .table-container {
+    max-height: 280px;
+  }
+
+  .filter-container, .sort-container {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-container input, .filter-container select, .sort-container select {
+    max-width: 100%;
+    font-size: 11px;
+    padding: 4px 7px;
+  }
+
+  .filter-container .input-icon input {
+    padding-left: 26px;
+  }
+
+  .filter-container .input-icon i {
+    left: 7px;
+    font-size: 11px;
+  }
+
+  .controls-container {
+    padding: 8px;
+  }
+
+  .clear-filters {
+    display: block;
+    width: fit-content;
+    margin: 10px auto 0;
+    background: #ff4d4d;
+    color: #fff;
+    font-family: "Fredoka", sans-serif;
+    font-weight: bold;
+    padding: 8px 16px;
+    border: 2px solid #000;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .clear-filters:hover {
+    background: #ff6666;
+    transform: scale(1.05);
+  }
+}
   </style>
 </head>
 <body>
@@ -130,7 +331,7 @@
       <img src="https://i.postimg.cc/fbVMvxkD/upscalemedia-transformed.png" alt="StopotS logo" height="50" />
     </a>
     <nav>
-      <a href="./index.html">Início</a>
+      <a href="./home.html">Início</a>
       <a href="./perfil.html">Perfil</a>
       <a href="./login.html">Sair</a>
     </nav>
@@ -139,23 +340,118 @@
   <section class="main">
     <h1>Relatório de Moderação</h1>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Status</th>
-          <th>Gravidade</th>
-          <th>Tipo de Infração</th>
-          <th>Jogador</th>
-          <th>Reincidências</th>
-          <th>Data</th>
-          <th>Banimento</th>
-          <th>Administrador</th>
-          <th>Descrição</th>
-        </tr>
-      </thead>
-      <tbody id="infractionsTableBody">
-      </tbody>
-    </table>
+    <div class="controls-container">
+      <h3>Filtros</h3>
+      <div class="filter-container">
+        <div class="filter-group">
+          <label for="filterData">Data (DD/MM/YYYY):</label>
+          <div class="input-icon">
+            <i class="fa fa-calendar"></i>
+            <input type="text" id="filterData" placeholder="Ex: 15/05/2025">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label for="filterTipo">Tipo de Infração:</label>
+          <select id="filterTipo">
+            <option value="">Todos</option>
+            <option value="Linguagem imprópria">Linguagem imprópria</option>
+            <option value="Trapaça">Trapaça</option>
+            <option value="Comportamento antidesportivo">Comportamento antidesportivo</option>
+            <option value="Exploração de bugs">Exploração de bugs</option>
+            <option value="Spam">Spam</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterReincidencias">Reincidências:</label>
+          <div class="input-icon">
+            <i class="fa fa-redo"></i>
+            <input type="number" id="filterReincidencias" placeholder="Ex: 2" min="0">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label for="filterStatus">Status:</label>
+          <select id="filterStatus">
+            <option value="">Todos</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Resolvido">Resolvido</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterGravidade">Gravidade:</label>
+          <select id="filterGravidade">
+            <option value="">Todos</option>
+            <option value="Alto">Alto</option>
+            <option value="Médio">Médio</option>
+            <option value="Baixo">Baixo</option>
+          </select>
+        </div>
+      </div>
+      <button class="clear-filters">Limpar Filtros</button>
+
+      <h3>Ordenação</h3>
+      <div class="sort-container">
+        <div class="sort-group">
+          <label for="sortData">Data:</label>
+          <select id="sortData">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortBanimento">Banimento:</label>
+          <select id="sortBanimento">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortReincidencias">Reincidências:</label>
+          <select id="sortReincidencias">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortGravidade">Gravidade:</label>
+          <select id="sortGravidade">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortStatus">Status:</label>
+          <select id="sortStatus">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Gravidade</th>
+            <th>Tipo de Infração</th>
+            <th>Jogador</th>
+            <th>Reincidências</th>
+            <th>Data</th>
+            <th>Banimento</th>
+            <th>Administrador</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody id="infractionsTableBody">
+        </tbody>
+      </table>
+    </div>
 
     <h2>Estatísticas Gerais</h2>
     <div class="stats" id="statsContainer">
@@ -169,7 +465,7 @@
   </footer>
 
   <script>
-    // Array of infractions - easy to add new entries here
+    // Array of infractions
     const infractions = [
       {
         status: 'Resolvido',
@@ -249,7 +545,7 @@
         descricao: 'Uso de linguagem ofensiva em múltiplas salas'
       },
       {
-        status: 'Resolvido',
+        sortStatus: 'Resolvido',
         gravidade: 'Médio',
         tipo: 'Trapaça',
         jogador: 'SpeedyBot',
@@ -258,17 +554,213 @@
         banimento: '45 dias',
         administrador: 'AdminJoão',
         descricao: 'Uso de software de automação para respostas rápidas'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Médio',
+        tipo: 'Spam',
+        jogador: 'FloodMaster',
+        reincidencias: 3,
+        data: '14/06/2025',
+        banimento: '15 dias',
+        administrador: 'AdminAna',
+        descricao: 'Mensagens repetitivas e sem contexto durante partida'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Alto',
+        tipo: 'Trapaça',
+        jogador: 'CheatKing',
+        reincidencias: 2,
+        data: '07/06/2025',
+        banimento: '60 dias',
+        administrador: 'AdminCarlos',
+        descricao: 'Manipulação de pontuação por meio de bot'
+      },
+      {
+        status: 'Pendente',
+        gravidade: 'Médio',
+        tipo: 'Exploração de bugs',
+        jogador: 'GlitchWizard',
+        reincidencias: 1,
+        data: '19/06/2025',
+        banimento: 'Não aplicado',
+        administrador: 'AdminPedro',
+        descricao: 'Exploração de falha visual para vantagem de tempo'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Baixo',
+        tipo: 'Linguagem imprópria',
+        jogador: 'NoobSlayer',
+        reincidencias: 1,
+        data: '03/06/2025',
+        banimento: '7 dias',
+        administrador: 'AdminJoão',
+        descricao: 'Comentários ofensivos contra novatos'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Médio',
+        tipo: 'Comportamento antidesportivo',
+        jogador: 'ToxicQueen',
+        reincidencias: 2,
+        data: '11/06/2025',
+        banimento: '15 dias',
+        administrador: 'AdminLívia',
+        descricao: 'Provocações e sabotagem em equipe'
+      },
+      {
+        status: 'Pendente',
+        gravidade: 'Alto',
+        tipo: 'Trapaça',
+        jogador: 'AutoResponder',
+        reincidencias: 3,
+        data: '17/06/2025',
+        banimento: 'Não aplicado',
+        administrador: 'AdminAna',
+        descricao: 'Respostas suspeitas com tempo de reação irreal'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Baixo',
+        tipo: 'Spam',
+        jogador: 'EmojiLover',
+        reincidencias: 1,
+        data: '13/06/2025',
+        banimento: '7 dias',
+        administrador: 'AdminPedro',
+        descricao: 'Envio de emojis em excesso no chat'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Médio',
+        tipo: 'Comportamento antidesportivo',
+        jogador: 'MeanMachine',
+        reincidencias: 2,
+        data: '09/06/2025',
+        banimento: '30 dias',
+        administrador: 'AdminJoão',
+        descricao: 'Comentários desmotivadores e insultos repetitivos'
+      },
+      {
+        status: 'Pendente',
+        gravidade: 'Médio',
+        tipo: 'Linguagem imprópria',
+        jogador: 'AngryPlayer',
+        reincidencias: 2,
+        data: '20/06/2025',
+        banimento: 'Não aplicado',
+        administrador: 'AdminCarlos',
+        descricao: 'Uso de termos ofensivos durante discussão'
+      },
+      {
+        status: 'Resolvido',
+        gravidade: 'Alto',
+        tipo: 'Trapaça',
+        jogador: 'SilentBot',
+        reincidencias: 4,
+        data: '06/06/2025',
+        banimento: 'Permanente',
+        administrador: 'AdminAna',
+        descricao: 'Execução automática de respostas não humanas'
       }
     ];
 
-    // Function to populate table
+    // Function to parse date (DD/MM/YYYY) to Date object
+    function parseDate(dateStr) {
+      const [day, month, year] = dateStr.split('/').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    // Function to get banimento order
+    function getBanimentoOrder(banimento) {
+      const order = {
+        'Permanente': 5,
+        '60 dias': 4,
+        '45 dias': 3,
+        '30 dias': 2,
+        '7 dias': 1,
+        'Não aplicado': 0
+      };
+      return order[banimento] || 0;
+    }
+
+    // Function to get gravidade order
+    function getGravidadeOrder(gravidade) {
+      const order = {
+        'Alto': 3,
+        'Médio': 2,
+        'Baixo': 1
+      };
+      return order[gravidade] || 0;
+    }
+
+    // Function to apply filters
+    function applyFilters(infractions) {
+      const filterData = document.getElementById('filterData').value.trim();
+      const filterTipo = document.getElementById('filterTipo').value;
+      const filterReincidencias = document.getElementById('filterReincidencias').value;
+      const filterStatus = document.getElementById('filterStatus').value;
+      const filterGravidade = document.getElementById('filterGravidade').value;
+
+      return infractions.filter(infraction => {
+        // Filter by Data (partial or exact match)
+        if (filterData) {
+          if (!infraction.data.includes(filterData)) return false;
+        }
+
+        // Filter by Tipo de Infração
+        if (filterTipo && infraction.tipo !== filterTipo) return false;
+
+        // Filter by Reincidências (exact match)
+        if (filterReincidencias && infraction.reincidencias !== parseInt(filterReincidencias)) return false;
+
+        // Filter by Status
+        if (filterStatus && infraction.status !== filterStatus) return false;
+
+        // Filter by Gravidade
+        if (filterGravidade && infraction.gravidade !== filterGravidade) return false;
+
+        return true;
+      });
+    }
+
+    // Function to populate table with filtered and sorted data
     function populateTable() {
       const tbody = document.getElementById('infractionsTableBody');
+      const sortData = document.getElementById('sortData').value;
+      const sortBanimento = document.getElementById('sortBanimento').value;
+      const sortReincidencias = document.getElementById('sortReincidencias').value;
+      const sortGravidade = document.getElementById('sortGravidade').value;
+      const sortStatus = document.getElementById('sortStatus').value;
+
+      // Apply filters
+      let filteredInfractions = applyFilters([...infractions]);
+
+      // Apply sorting
+      const sortCriteria = [
+        { key: 'data', order: sortData, compare: (a, b) => parseDate(a.data) - parseDate(b.data) },
+        { key: 'banimento', order: sortBanimento, compare: (a, b) => getBanimentoOrder(a.banimento) - getBanimentoOrder(b.banimento) },
+        { key: 'reincidencias', order: sortReincidencias, compare: (a, b) => a.reincidencias - b.reincidencias },
+        { key: 'gravidade', order: sortGravidade, compare: (a, b) => getGravidadeOrder(a.gravidade) - getGravidadeOrder(b.gravidade) },
+        { key: 'status', order: sortStatus, compare: (a, b) => (a.status || a.sortStatus).localeCompare(b.status || b.sortStatus) }
+      ].filter(c => c.order !== 'none');
+
+      filteredInfractions.sort((a, b) => {
+        for (const { order, compare } of sortCriteria) {
+          const result = order === 'asc' ? compare(a, b) : compare(b, a);
+          if (result !== 0) return result;
+        }
+        return 0;
+      });
+
+      // Populate table
       tbody.innerHTML = '';
-      infractions.forEach(infraction => {
+      filteredInfractions.forEach(infraction => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${infraction.status}</td>
+          <td>${infraction.status || infraction.sortStatus}</td>
           <td>${infraction.gravidade}</td>
           <td>${infraction.tipo}</td>
           <td>${infraction.jogador}</td>
@@ -285,21 +777,18 @@
     // Function to calculate and display statistics
     function displayStats() {
       const statsContainer = document.getElementById('statsContainer');
-      
-      // Calculate average response time (assuming all are resolved)
-      const totalInfractions = infractions.length;
-      const avgResponseTime = totalInfractions > 0 ? 4.0 : 0; // Static for now, can be dynamic if dates are processed
+      const filteredInfractions = applyFilters([...infractions]);
+      const totalInfractions = filteredInfractions.length;
+      const avgResponseTime = totalInfractions > 0 ? 4.0 : 0;
 
-      // Calculate reincidences
       const reincidences = {};
-      infractions.forEach(infraction => {
+      filteredInfractions.forEach(infraction => {
         reincidences[infraction.jogador] = (reincidences[infraction.jogador] || 0) + infraction.reincidencias;
       });
-      
-      // Sort players by reincidences
+
       const sortedReincidences = Object.entries(reincidences)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 2);
+        .filter(a => a[1] > 1)
+        .sort((a, b) => b[1] - a[1]).slice(0, 5);
 
       statsContainer.innerHTML = `
         <p><strong>Tempo médio de resposta:</strong> ${avgResponseTime.toFixed(1)} dias</p>
@@ -314,8 +803,9 @@
     // Function to update chart
     function updateChart() {
       const ctx = document.getElementById('infractionChart').getContext('2d');
+      const filteredInfractions = applyFilters([...infractions]);
       const counts = {};
-      infractions.forEach(infraction => {
+      filteredInfractions.forEach(infraction => {
         counts[infraction.tipo] = (counts[infraction.tipo] || 0) + 1;
       });
 
@@ -329,7 +819,7 @@
           datasets: [{
             label: 'Ocorrências',
             data: data,
-            backgroundColor: ['#ffc800', '#ff4d4d', '#4bc0c0', '#ff7300', '#9966ff', '#ff99cc'], // Expanded colors
+            backgroundColor: ['#ffc800', '#ff4d4d', '#4bc0c0', '#ff7300', '#9966ff', '#ff99cc'],
             borderColor: '#000',
             borderWidth: 2
           }]
@@ -359,9 +849,40 @@
       });
     }
 
-    populateTable();
-    displayStats();
-    updateChart();
+    // Function to clear filters
+    function clearFilters() {
+      document.getElementById('filterData').value = '';
+      document.getElementById('filterTipo').value = '';
+      document.getElementById('filterReincidencias').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('filterGravidade').value = '';
+      populateTable();
+      displayStats();
+      updateChart();
+    }
+
+    // Initialize page
+    function init() {
+      populateTable();
+      displayStats();
+      updateChart();
+
+      // Add event listeners for sort and filter controls
+      document.getElementById('sortData').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortBanimento').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortReincidencias').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortGravidade').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortStatus').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterData').addEventListener('input', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterTipo').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterReincidencias').addEventListener('input', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterStatus').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterGravidade').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.querySelector('.clear-filters').addEventListener('click', clearFilters);
+    }
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
