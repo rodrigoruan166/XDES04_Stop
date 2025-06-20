@@ -61,6 +61,7 @@ async function entrar(e) {
 				localStorage.setItem("email", info.email);
 				localStorage.setItem("avatar", info.avatar);
 				localStorage.setItem("privacidade", info.private == 1 ? 'publico' : 'privado');
+				localStorage.setItem("admin", info.admin);
 				alert("Logado com sucesso.");
 				window.location.href = "./home.html";
 			} else {
