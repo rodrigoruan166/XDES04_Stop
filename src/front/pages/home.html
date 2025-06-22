@@ -137,6 +137,7 @@
 				<a href="./categoria.html">Categorias</a>
 				<a href="./perfil.html">Ver Perfil</a>
 				<a id="moderationLink" href="./relatorioModeracao.html" style="display: none;">Relatório de Moderação</a>
+				<a id="atividadeLink" href="./relatorioAtividade.html" style="display: none;">Relatório de Atividade</a>
 				<a href="./login.html">Sair</a>
 			</nav>
 		</header>
@@ -161,11 +162,14 @@
 			// Check if user is admin and show moderation link
 			function checkAdminStatus() {
 				const moderationLink = document.getElementById('moderationLink');
+				const atividadeLink = document.getElementById('atividadeLink')
 				const isAdmin = localStorage.getItem('admin') === '1';
 				if (isAdmin) {
 					moderationLink.style.display = 'inline';
+					atividadeLink.style.display = 'inline'
 				} else {
 					moderationLink.style.display = 'none';
+					atividadeLink.style.display = 'none';
 				}
 			}
 
