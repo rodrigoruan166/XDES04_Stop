@@ -59,7 +59,7 @@ app.post("/logar", (req, res) => {
 	}
 
 	const query =
-		"SELECT username, email, passwd, private, avatar, deleted FROM users WHERE email = ?";
+		"SELECT username, email, passwd, private, avatar, deleted, admin FROM users WHERE email = ?";
 	const values = [email];
 
 	con.query(query, values, (err, results) => {
@@ -77,7 +77,8 @@ app.post("/logar", (req, res) => {
 					username: user.username,
 					email: user.email,
 					private: user.private,
-					avatar: user.avatar
+					avatar: user.avatar,
+					admin: user.admin
 				});
 				answer.code = HTTP_CODES.OK;
 			} else if (user.deleted == 1) {

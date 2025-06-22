@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de Atividade da Plataforma - Stop!</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Fredoka", sans-serif;
+      background: url("https://i.postimg.cc/DzHNSmDC/background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header nav a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .main {
+      flex-grow: 1;
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 4px #000000be;
+    }
+
+    .controls-container {
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .filter-container, .sort-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .filter-container .filter-group, .sort-container .sort-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      max-width: 200px;
+    }
+
+    .filter-container label, .sort-container label {
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 3px;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .filter-container input, .filter-container select, .sort-container select {
+      width: 100%;
+      max-width: 180px;
+      background: #ffc800;
+      color: #000;
+      font-family: "Fredoka", sans-serif;
+      font-weight: bold;
+      padding: 6px 8px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      font-size: 12px;
+      box-sizing: border-box;
+    }
+
+    .filter-container input:focus, .filter-container select:focus, .sort-container select:focus {
+      outline: none;
+      background: #ffe05f;
+      transform: scale(1.02);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .filter-container input::placeholder {
+      color: #333;
+      opacity: 0.7;
+    }
+
+    .filter-container .input-icon {
+      position: relative;
+      width: 100%;
+    }
+
+    .filter-container .input-icon i {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #000;
+      font-size: 12px;
+    }
+
+    .filter-container .input-icon input {
+      padding-left: 28px;
+    }
+
+    .clear-filters {
+      display: block;
+      margin: 8px auto 0;
+      background: #ff4d4d;
+      color: #fff;
+      font-family: "Fredoka", sans-serif;
+      font-weight: bold;
+      padding: 6px 12px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+      font-size: 12px;
+    }
+
+    .clear-filters:hover {
+      background: #ff6666;
+      transform: scale(1.05);
+    }
+
+    .table-container {
+      width: 100%;
+      max-height: 320px;
+      overflow-y: auto;
+      background-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      margin-bottom: 40px;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: transparent;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #ffc800;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .table-container::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+      background: #ffc800;
+      border-radius: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: #ffe05f;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #eee;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    canvas {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 0 auto 40px;
+      max-width: 100%;
+    }
+
+    .stats {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      margin-bottom: 40px;
+    }
+
+    .stats p {
+      font-size: 18px;
+      margin: 10px 0;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    @media (max-width: 768px) {
+      .filter-container, .sort-container {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      }
+
+      .filter-container input, .filter-container select, .sort-container select {
+        max-width: 160px;
+        padding: 5px 7px;
+        font-size: 11px;
+      }
+
+      .filter-container label, .sort-container label {
+        font-size: 10px;
+      }
+
+      .filter-container .input-icon i {
+        font-size: 11px;
+        left: 7px;
+      }
+
+      .filter-container .input-icon input {
+        padding-left: 26px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 24px;
+      }
+
+      table, th, td, .stats p {
+        font-size: 14px;
+      }
+
+      .table-container {
+        max-height: 280px;
+      }
+
+      .filter-container, .sort-container {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-container input, .filter-container select, .sort-container select {
+        max-width: 100%;
+        font-size: 11px;
+        padding: 4px 7px;
+      }
+
+      .filter-container .input-icon input {
+        padding-left: 26px;
+      }
+
+      .filter-container .input-icon i {
+        left: 7px;
+        font-size: 11px;
+      }
+
+      .controls-container {
+        padding: 8px;
+      }
+
+      .clear-filters {
+        width: fit-content;
+        margin: 10px auto 0;
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="#">
+      <img src="https://i.postimg.cc/fbVMvxkD/upscalemedia-transformed.png" alt="StopotS logo" height="50">
+    </a>
+    <nav>
+      <a href="./home.html">Início</a>
+      <a href="./perfil.html">Perfil</a>
+      <a href="./login.html">Sair</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    <h1>Relatório de Atividade da Plataforma</h1>
+
+    <div class="controls-container">
+      <h3>Filtros</h3>
+      <div class="filter-container">
+        <div class="filter-group">
+          <label for="filterDataInicio">Período Inicial (DD/MM/YYYY):</label>
+          <div class="input-icon">
+            <i class="fa fa-calendar"></i>
+            <input type="text" id="filterDataInicio" placeholder="Ex: 01/06/2025">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label for="filterDataFim">Período Final (DD/MM/YYYY):</label>
+          <div class="input-icon">
+            <i class="fa fa-calendar"></i>
+            <input type="text" id="filterDataFim" placeholder="Ex: 30/06/2025">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label for="filterMetrica">Tipo de Métrica:</label>
+          <select id="filterMetrica">
+            <option value="">Todos</option>
+            <option value="Jogadores Ativos">Jogadores Ativos</option>
+            <option value="Partidas Criadas">Partidas Criadas</option>
+            <option value="Taxa de Conclusão">Taxa de Conclusão</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterAgrupamento">Agrupamento:</label>
+          <select id="filterAgrupamento">
+            <option value="">Todos</option>
+            <option value="Por Hora">Por Hora</option>
+            <option value="Por Dia">Por Dia</option>
+            <option value="Por Semana">Por Semana</option>
+          </select>
+        </div>
+      </div>
+      <button class="clear-filters">Limpar Filtros</button>
+
+      <h3>Ordenação</h3>
+      <div class="sort-container">
+        <div class="sort-group">
+          <label for="sortData">Período:</label>
+          <select id="sortData">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortJogadores">Jogadores Ativos:</label>
+          <select id="sortJogadores">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortPartidas">Partidas Criadas:</label>
+          <select id="sortPartidas">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <label for="sortConclusao">Taxa de Conclusão:</label>
+          <select id="sortConclusao">
+            <option value="none">Nenhum</option>
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Período</th>
+            <th>Tipo de Métrica</th>
+            <th>Agrupamento</th>
+            <th>Valor</th>
+            <th>Alerta de Queda</th>
+          </tr>
+        </thead>
+        <tbody id="activityTableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Estatísticas Gerais</h2>
+    <div class="stats" id="statsContainer">
+    </div>
+
+    <canvas id="activityChart" width="800" height="400"></canvas>
+  </section>
+
+  <footer>
+    © 2025 Stop - Criado por Rodrigo, Rodolfo, Caio e Rafael.
+  </footer>
+
+  <script>
+    // Sample activity data
+    const activities = [
+        // Daily data for 01/06/2025
+        { periodo: '01/06/2025', metrica: 'Jogadores Ativos', agrupamento: 'Por Dia', valor: 1500, alerta: 'Nenhum' },
+        { periodo: '01/06/2025', metrica: 'Partidas Criadas', agrupamento: 'Por Dia', valor: 300, alerta: 'Nenhum' },
+        { periodo: '01/06/2025', metrica: 'Taxa de Conclusão', agrupamento: 'Por Dia', valor: 85, alerta: 'Nenhum' },
+        // Hourly data for 01/06/2025
+        { periodo: '01/06/2025 10:00', metrica: 'Jogadores Ativos', agrupamento: 'Por Hora', valor: 200, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 10:00', metrica: 'Partidas Criadas', agrupamento: 'Por Hora', valor: 50, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 10:00', metrica: 'Taxa de Conclusão', agrupamento: 'Por Hora', valor: 90, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 12:00', metrica: 'Jogadores Ativos', agrupamento: 'Por Hora', valor: 250, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 12:00', metrica: 'Partidas Criadas', agrupamento: 'Por Hora', valor: 60, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 12:00', metrica: 'Taxa de Conclusão', agrupamento: 'Por Hora', valor: 88, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 14:00', metrica: 'Jogadores Ativos', agrupamento: 'Por Hora', valor: 300, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 14:00', metrica: 'Partidas Criadas', agrupamento: 'Por Hora', valor: 70, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 14:00', metrica: 'Taxa de Conclusão', agrupamento: 'Por Hora', valor: 87, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 16:00', metrica: 'Jogadores Ativos', agrupamento: 'Por Hora', valor: 280, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 16:00', metrica: 'Partidas Criadas', agrupamento: 'Por Hora', valor: 65, alerta: 'Nenhum' },
+        { periodo: '01/06/2025 16:00', metrica: 'Taxa de Conclusão', agrupamento: 'Por Hora', valor: 85, alerta: 'Nenhum' },
+
+        // Daily data for 02/06/2025
+        { periodo: '02/06/2025', metrica: 'Jogadores Ativos', agrupamento: 'Por Dia', valor: 1200, alerta: 'Nenhum' },
+        { periodo: '02/06/2025', metrica: 'Partidas Criadas', agrupamento: 'Por Dia', valor: 280, alerta: 'Nenhum' },
+        { periodo: '02/06/2025', metrica: 'Taxa de Conclusão', agrupamento: 'Por Dia', valor: 80, alerta: 'Nenhum' },
+        // Hourly data for 02/06/2025
+        { periodo: '02/06/2025 10:00', metrica: 'Jogadores Ativos', agrupamento: 'Por Hora', valor: 180, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 10:00', metrica: 'Partidas Criadas', agrupamento: 'Por Hora', valor: 45, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 10:00', metrica: 'Taxa de Conclusão', agrupamento: 'Por Hora', valor: 82, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 12:00', metrica: 'Jogadores Ativos', agrupamento: 'Por Hora', valor: 220, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 12:00', metrica: 'Partidas Criadas', agrupamento: 'Por Hora', valor: 55, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 12:00', metrica: 'Taxa de Conclusão', agrupamento: 'Por Hora', valor: 80, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 14:00', metrica: 'Jogadores Ativos', agrupamento: 'Por Hora', valor: 250, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 14:00', metrica: 'Partidas Criadas', agrupamento: 'Por Hora', valor: 60, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 14:00', metrica: 'Taxa de Conclusão', agrupamento: 'Por Hora', valor: 81, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 16:00', metrica: 'Jogadores Ativos', agrupamento: 'Por Hora', valor: 230, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 16:00', metrica: 'Partidas Criadas', agrupamento: 'Por Hora', valor: 58, alerta: 'Nenhum' },
+        { periodo: '02/06/2025 16:00', metrica: 'Taxa de Conclusão', agrupamento: 'Por Hora', valor: 79, alerta: 'Nenhum' },
+
+        // Daily data for 03/06/2025
+        { periodo: '03/06/2025', metrica: 'Jogadores Ativos', agrupamento: 'Por Dia', valor: 900, alerta: 'Queda detectada' },
+        { periodo: '03/06/2025', metrica: 'Partidas Criadas', agrupamento: 'Por Dia', valor: 250, alerta: 'Nenhum' },
+        { periodo: '03/06/2025', metrica: 'Taxa de Conclusão', agrupamento: 'Por Dia', valor: 75, alerta: 'Nenhum' },
+
+        // Daily data for 04/06/2025
+        { periodo: '04/06/2025', metrica: 'Jogadores Ativos', agrupamento: 'Por Dia', valor: 850, alerta: 'Queda detectada' },
+        { periodo: '04/06/2025', metrica: 'Partidas Criadas', agrupamento: 'Por Dia', valor: 240, alerta: 'Nenhum' },
+        { periodo: '04/06/2025', metrica: 'Taxa de Conclusão', agrupamento: 'Por Dia', valor: 78, alerta: 'Nenhum' },
+
+        // Daily data for 05/06/2025
+        { periodo: '05/06/2025', metrica: 'Jogadores Ativos', agrupamento: 'Por Dia', valor: 1100, alerta: 'Nenhum' },
+        { periodo: '05/06/2025', metrica: 'Partidas Criadas', agrupamento: 'Por Dia', valor: 270, alerta: 'Nenhum' },
+        { periodo: '05/06/2025', metrica: 'Taxa de Conclusão', agrupamento: 'Por Dia', valor: 82, alerta: 'Nenhum' },
+
+        // Daily data for 06/06/2025
+        { periodo: '06/06/2025', metrica: 'Jogadores Ativos', agrupamento: 'Por Dia', valor: 1300, alerta: 'Nenhum' },
+        { periodo: '06/06/2025', metrica: 'Partidas Criadas', agrupamento: 'Por Dia', valor: 290, alerta: 'Nenhum' },
+        { periodo: '06/06/2025', metrica: 'Taxa de Conclusão', agrupamento: 'Por Dia', valor: 83, alerta: 'Nenhum' },
+
+        // Daily data for 07/06/2025
+        { periodo: '07/06/2025', metrica: 'Jogadores Ativos', agrupamento: 'Por Dia', valor: 1400, alerta: 'Nenhum' },
+        { periodo: '07/06/2025', metrica: 'Partidas Criadas', agrupamento: 'Por Dia', valor: 310, alerta: 'Nenhum' },
+        { periodo: '07/06/2025', metrica: 'Taxa de Conclusão', agrupamento: 'Por Dia', valor: 86, alerta: 'Nenhum' }
+    ];
+
+    // Function to parse date (DD/MM/YYYY or DD/MM/YYYY HH:MM) to Date object
+    function parseDate(dateStr) {
+      const parts = dateStr.split(' ');
+      const [day, month, year] = parts[0].split('/').map(Number);
+      if (parts.length > 1) {
+        const [hour, minute] = parts[1].split(':').map(Number);
+        return new Date(year, month - 1, day, hour, minute);
+      }
+      return new Date(year, month - 1, day);
+    }
+
+    // Function to apply filters
+    function applyFilters(activities) {
+      const filterDataInicio = document.getElementById('filterDataInicio').value.trim();
+      const filterDataFim = document.getElementById('filterDataFim').value.trim();
+      const filterMetrica = document.getElementById('filterMetrica').value;
+      const filterAgrupamento = document.getElementById('filterAgrupamento').value;
+
+      return activities.filter(activity => {
+        // Filter by Periodo (start and end date)
+        if (filterDataInicio) {
+          const startDate = parseDate(filterDataInicio);
+          const activityDate = parseDate(activity.periodo);
+          if (activityDate < startDate) return false;
+        }
+        if (filterDataFim) {
+          const endDate = parseDate(filterDataFim);
+          const activityDate = parseDate(activity.periodo);
+          if (activityDate > endDate) return false;
+        }
+
+        // Filter by Métrica
+        if (filterMetrica && activity.metrica !== filterMetrica) return false;
+
+        // Filter by Agrupamento
+        if (filterAgrupamento && activity.agrupamento !== filterAgrupamento) return false;
+
+        return true;
+      });
+    }
+
+    // Function to populate table with filtered and sorted data
+    function populateTable() {
+      const tbody = document.getElementById('activityTableBody');
+      const sortData = document.getElementById('sortData').value;
+      const sortJogadores = document.getElementById('sortJogadores').value;
+      const sortPartidas = document.getElementById('sortPartidas').value;
+      const sortConclusao = document.getElementById('sortConclusao').value;
+
+      // Apply filters
+      let filteredActivities = applyFilters([...activities]);
+
+      // Apply sorting
+      const sortCriteria = [
+        { key: 'periodo', order: sortData, compare: (a, b) => parseDate(a.periodo) - parseDate(b.periodo) },
+        {
+          key: 'jogadores', order: sortJogadores, compare: (a, b) => {
+            if (a.metrica === 'Jogadores Ativos' && b.metrica === 'Jogadores Ativos') return a.valor - b.valor;
+            return 0;
+          }
+        },
+        {
+          key: 'partidas', order: sortPartidas, compare: (a, b) => {
+            if (a.metrica === 'Partidas Criadas' && b.metrica === 'Partidas Criadas') return a.valor - b.valor;
+            return 0;
+          }
+        },
+        {
+          key: 'conclusao', order: sortConclusao, compare: (a, b) => {
+            if (a.metrica === 'Taxa de Conclusão' && b.metrica === 'Taxa de Conclusão') return a.valor - b.valor;
+            return 0;
+          }
+        }
+      ].filter(c => c.order !== 'none');
+
+      filteredActivities.sort((a, b) => {
+        for (const { order, compare } of sortCriteria) {
+          const result = order === 'asc' ? compare(a, b) : compare(b, a);
+          if (result !== 0) return result;
+        }
+        return 0;
+      });
+
+      // Populate table
+      tbody.innerHTML = '';
+      filteredActivities.forEach(activity => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${activity.periodo}</td>
+          <td>${activity.metrica}</td>
+          <td>${activity.agrupamento}</td>
+          <td>${activity.valor}${activity.metrica === 'Taxa de Conclusão' ? '%' : ''}</td>
+          <td>${activity.alerta}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Function to calculate and display statistics
+    function displayStats() {
+      const statsContainer = document.getElementById('statsContainer');
+      const filteredActivities = applyFilters([...activities]);
+
+      const totalJogadores = filteredActivities
+        .filter(a => a.metrica === 'Jogadores Ativos')
+        .reduce((sum, a) => sum + a.valor, 0);
+      const totalPartidas = filteredActivities
+        .filter(a => a.metrica === 'Partidas Criadas')
+        .reduce((sum, a) => sum + a.valor, 0);
+      const avgConclusao = filteredActivities
+        .filter(a => a.metrica === 'Taxa de Conclusão')
+        .reduce((sum, a, _, arr) => sum + a.valor / arr.length, 0);
+      const alertasQueda = filteredActivities
+        .filter(a => a.alerta === 'Queda detectada').length;
+
+      statsContainer.innerHTML = `
+        <p><strong>Total de Jogadores Ativos:</strong> ${totalJogadores}</p>
+        <p><strong>Total de Partidas Criadas:</strong> ${totalPartidas}</p>
+        <p><strong>Taxa Média de Conclusão:</strong> ${avgConclusao.toFixed(1)}%</p>
+        <p><strong>Alertas de Queda:</strong> ${alertasQueda} (Jogadores ativos < 1.000 por 12h)</p>
+      `;
+    }
+
+    // Function to update chart
+    function updateChart() {
+      const ctx = document.getElementById('activityChart').getContext('2d');
+      const filteredActivities = applyFilters([...activities]);
+
+      // Organize data for line chart
+      const periods = [...new Set(filteredActivities.map(a => a.periodo))].sort((a, b) => parseDate(a) - parseDate(b));
+      const metrics = ['Jogadores Ativos', 'Partidas Criadas', 'Taxa de Conclusão'];
+      const datasets = metrics.map(metric => {
+        const data = periods.map(period => {
+          const activity = filteredActivities.find(a => a.periodo === period && a.metrica === metric);
+          return activity ? activity.valor : 0;
+        });
+        return {
+          label: metric,
+          data: data,
+          borderColor: metric === 'Jogadores Ativos' ? '#ffc800' : metric === 'Partidas Criadas' ? '#ff4d4d' : '#4bc0c0',
+          fill: false,
+          tension: 0.1
+        };
+      });
+
+      // Destroy previous chart instance if it exists
+      if (window.activityChart instanceof Chart) {
+        window.activityChart.destroy();
+      }
+
+      window.activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: periods,
+          datasets: datasets
+        },
+        options: {
+          plugins: {
+            legend: {
+              display: true,
+              labels: { color: '#fff' }
+            },
+            title: {
+              display: true,
+              text: 'Tendência de Métricas ao Longo do Tempo',
+              color: '#fff',
+              font: { size: 18 }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.2)' },
+              title: {
+                display: true,
+                text: 'Valor',
+                color: '#fff'
+              }
+            },
+            x: {
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.2)' },
+              title: {
+                display: true,
+                text: 'Período',
+                color: '#fff'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Function to clear filters
+    function clearFilters() {
+      document.getElementById('filterDataInicio').value = '';
+      document.getElementById('filterDataFim').value = '';
+      document.getElementById('filterMetrica').value = '';
+      document.getElementById('filterAgrupamento').value = '';
+      document.getElementById('sortData').value = 'none';
+      document.getElementById('sortJogadores').value = 'none';
+      document.getElementById('sortPartidas').value = 'none';
+      document.getElementById('sortConclusao').value = 'none';
+      populateTable();
+      displayStats();
+      updateChart();
+    }
+
+    // Initialize page
+    function init() {
+      populateTable();
+      displayStats();
+      updateChart();
+
+      // Add event listeners for sort and filter controls
+      document.getElementById('sortData').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortJogadores').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortPartidas').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('sortConclusao').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterDataInicio').addEventListener('input', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterDataFim').addEventListener('input', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterMetrica').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.getElementById('filterAgrupamento').addEventListener('change', () => { populateTable(); displayStats(); updateChart(); });
+      document.querySelector('.clear-filters').addEventListener('click', clearFilters);
+    }
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
